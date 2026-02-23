@@ -1,168 +1,294 @@
--- // Fluent+ (Robotic theme edition) - cleaned & fixed
--- github.com/discoart/FluentPlus | dsc.gg/hydrahub
+-- Fluent+ Robotic Edition - fixed (test/demo moved to end)
 
 local Services = {
-    Lighting         = game:GetService("Lighting"),
-    RunService       = game:GetService("RunService"),
-    Players          = game:GetService("Players"),
+    Players = game:GetService("Players"),
+    RunService = game:GetService("RunService"),
     UserInputService = game:GetService("UserInputService"),
-    TweenService     = game:GetService("TweenService"),
-    TextService      = game:GetService("TextService"),
-    HttpService      = game:GetService("HttpService"),
+    TweenService = game:GetService("TweenService"),
+    TextService = game:GetService("TextService"),
+    Workspace = game:GetService("Workspace"),
+    HttpService = game:GetService("HttpService"),
 }
 
 local LocalPlayer = Services.Players.LocalPlayer
-local Mouse       = LocalPlayer:GetMouse()
-local Camera      = workspace.CurrentCamera
+local Mouse = LocalPlayer:GetMouse()
+local Camera = Services.Workspace.CurrentCamera
 
 local Mobile = not Services.RunService:IsStudio() and
     table.find({Enum.Platform.IOS, Enum.Platform.Android}, Services.UserInputService:GetPlatform()) ~= nil
 
-local isFisch = game.GameId == 5750914919
+local ProtectGui = protectgui or (syn and syn.protect_gui) or function() end
 
-
+-- ────────────────────────────────────────────────
+-- Only Robotic + Dark fallback
+-- ────────────────────────────────────────────────
 
 local Themes = {
-    Names = {
-        "Dark", "Darker", "AMOLED", "Light", "Balloon", "SoftCream",
-        "Aqua", "Amethyst", "Rose", "Midnight", "Forest", "Sunset",
-        "Ocean", "Emerald", "Sapphire", "Cloud", "Grape", "Bloody",
-        "Arctic", "Robotic"
+    Names = {"Robotic", "Dark"},
+
+    Robotic = {
+        Name = "Robotic",
+        Accent = Color3.fromRGB(0, 258, 220),
+        AcrylicMain = Color3.fromRGB(6, 12, 20),
+        AcrylicBorder = Color3.fromRGB(0, 180, 200),
+        AcrylicGradient = ColorSequence.new(Color3.fromRGB(0,30,60), Color3.fromRGB(0,80,140)),
+        AcrylicNoise = 0.82,
+        TitleBarLine = Color3.fromRGB(0, 140, 180),
+        Tab = Color3.fromRGB(0, 100, 140),
+        Element = Color3.fromRGB(12, 20, 32),
+        ElementBorder = Color3.fromRGB(0, 90, 140),
+        InElementBorder = Color3.fromRGB(0, 160, 200),
+        ElementTransparency = 0.84,
+        ToggleSlider = Color3.fromRGB(0, 140, 180),
+        ToggleToggled = Color3.fromRGB(0, 40, 60),
+        SliderRail = Color3.fromRGB(0, 80, 120),
+        DropdownFrame = Color3.fromRGB(10, 25, 40),
+        DropdownHolder = Color3.fromRGB(8, 18, 30),
+        DropdownBorder = Color3.fromRGB(0, 120, 160),
+        DropdownOption = Color3.fromRGB(0, 100, 140),
+        Keybind = Color3.fromRGB(0, 120, 160),
+        Input = Color3.fromRGB(10, 25, 40),
+        InputFocused = Color3.fromRGB(0, 50, 80),
+        InputIndicator = Color3.fromRGB(0, 180, 200),
+        Text = Color3.fromRGB(220, 255, 250),
+        SubText = Color3.fromRGB(140, 200, 190),
+        Hover = Color3.fromRGB(0, 80, 120),
+        HoverChange = 0.14,
     },
-    
+
+    Dark = {
+        Name = "Dark",
+        Accent = Color3.fromRGB(96, 205, 255),
+        Text = Color3.fromRGB(240, 240, 240),
+        SubText = Color3.fromRGB(170, 170, 170),
+        Element = Color3.fromRGB(35, 35, 45),
+        ElementBorder = Color3.fromRGB(60, 60, 70),
+        Hover = Color3.fromRGB(50, 50, 65),
+    }
 }
 
+-- ────────────────────────────────────────────────
+-- Core Library
+-- ────────────────────────────────────────────────
 
 local Library = {
-    Version     = "1.2.2",
-    Theme       = "Robotic",
-    UseAcrylic  = true,
-    Acrylic     = true,
+    Version = "Robotic Edition",
+    Theme = "Robotic",
+    UseAcrylic = true,
+    Acrylic = true,
     Transparency = true,
     MinimizeKey = Enum.KeyCode.LeftControl,
-    MinimizeKeybind = nil,
-    DialogOpen  = false,
-    Windows     = {},
-    Window      = nil,
-    GUI         = nil,
-    Options     = {},
-    OpenFrames  = {},
+    GUI = nil,
+    Windows = {},
+    Window = nil,
+    Options = {},
+    Themes = Themes.Names,
     ActiveNotifications = {},
-    Themes      = Themes.Names,
-    Elements    = {},
 }
 
+-- Create ScreenGui
+Library.GUI = Instance.new("ScreenGui")
+Library.GUI.Name = "FluentRobotic"
+Library.GUI.ResetOnSpawn = false
+Library.GUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+Library.GUI.Parent = LocalPlayer:WaitForChild("PlayerGui")
+ProtectGui(Library.GUI)
 
-local MinimizerDragging = false
-local MinimizerDragStart, MinimizerDragOffset
-local ActiveMinimizer
+-- ────────────────────────────────────────────────
+-- Theme system
+-- ────────────────────────────────────────────────
 
-local function GetActiveMinimizer()
-    return Library.Minimizer
+local Creator = {
+    Registry = {},
+    TransparencyMotors = {},
+}
+
+function Creator.GetThemeProperty(prop)
+    local theme = Themes[Library.Theme] or Themes.Dark
+    return theme[prop] or Themes.Dark[prop]
 end
 
-local function OnDragInputBegan(input)
-    if not (input.UserInputType == Enum.UserInputType.MouseButton1 or
-            input.UserInputType == Enum.UserInputType.Touch) then
-        return
+function Creator.UpdateTheme()
+    for obj, data in pairs(Creator.Registry) do
+        for prop, colorKey in pairs(data.Properties or {}) do
+            local val = Creator.GetThemeProperty(colorKey)
+            if val then obj[prop] = val end
+        end
     end
 
-    local min = GetActiveMinimizer()
-    if not min or not min.Parent then return end
-
-    MinimizerDragging   = true
-    MinimizerDragStart  = Vector2.new(input.Position.X, input.Position.Y)
-    MinimizerDragOffset = min.Position
-    ActiveMinimizer     = min
-end
-
-local function OnDragInputEnded(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or
-       input.UserInputType == Enum.UserInputType.Touch then
-        MinimizerDragging   = false
-        MinimizerDragStart  = nil
-        MinimizerDragOffset = nil
-        ActiveMinimizer     = nil
+    local trans = Creator.GetThemeProperty("ElementTransparency") or 0.84
+    for _, motor in pairs(Creator.TransparencyMotors) do
+        motor:setGoal({complete = true, value = trans})
     end
 end
 
-Services.RunService.Heartbeat:Connect(function()
-    if not MinimizerDragging then return end
-    if not ActiveMinimizer or not ActiveMinimizer.Parent then
-        MinimizerDragging = false
-        return
+function Creator.AddThemeObject(obj, props)
+    Creator.Registry[obj] = { Properties = props }
+    Creator.UpdateTheme()
+    return obj
+end
+
+-- ────────────────────────────────────────────────
+-- Acrylic (minimal version)
+-- ────────────────────────────────────────────────
+
+local Acrylic = {}
+
+function Acrylic.AcrylicPaint()
+    local paint = {}
+
+    paint.Frame = Instance.new("Frame")
+    paint.Frame.BackgroundTransparency = 0.35
+    paint.Frame.BackgroundColor3 = Creator.GetThemeProperty("AcrylicMain")
+
+    local corner = Instance.new("UICorner", paint.Frame)
+    corner.CornerRadius = UDim.new(0, 12)
+
+    local stroke = Instance.new("UIStroke", paint.Frame)
+    stroke.Transparency = 0.4
+    stroke.Thickness = 1.5
+    stroke.Color = Creator.GetThemeProperty("AcrylicBorder")
+
+    paint.Model = Instance.new("Part")
+    paint.Model.Transparency = 0.95
+    paint.Model.Material = Enum.Material.Glass
+    paint.Model.Anchored = true
+    paint.Model.CanCollide = false
+
+    return paint
+end
+
+-- ────────────────────────────────────────────────
+-- Window
+-- ────────────────────────────────────────────────
+
+function Library:CreateWindow(cfg)
+    cfg = cfg or {}
+    if Library.Window then return Library.Window end
+
+    local win = {}
+
+    win.Root = Instance.new("Frame")
+    win.Root.Size = cfg.Size or UDim2.fromOffset(580, 460)
+    win.Root.Position = UDim2.new(0.5, -290, 0.5, -230)
+    win.Root.BackgroundTransparency = 1
+    win.Root.Parent = Library.GUI
+
+    -- Acrylic background
+    if Library.UseAcrylic then
+        local paint = Acrylic.AcrylicPaint()
+        paint.Frame.Parent = win.Root
+        paint.Frame.Size = UDim2.fromScale(1,1)
+        win.AcrylicPaint = paint
     end
 
-    local current = Vector2.new(Mouse.X, Mouse.Y)
-    local delta   = current - MinimizerDragStart
+    -- Title
+    local title = Instance.new("TextLabel", win.Root)
+    title.Size = UDim2.new(1, -40, 0, 40)
+    title.Position = UDim2.new(0, 20, 0, 10)
+    title.BackgroundTransparency = 1
+    title.Text = cfg.Title or "Robotic UI"
+    title.TextColor3 = Creator.GetThemeProperty("Text")
+    title.TextSize = 22
+    title.FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Bold)
+    title.TextXAlignment = Enum.TextXAlignment.Left
 
-    local newX = MinimizerDragOffset.X.Offset + delta.X
-    local newY = MinimizerDragOffset.Y.Offset + delta.Y
+    -- Tab holder (left side)
+    win.TabHolder = Instance.new("ScrollingFrame", win.Root)
+    win.TabHolder.Size = UDim2.new(0, 160, 1, -60)
+    win.TabHolder.Position = UDim2.new(0, 12, 0, 50)
+    win.TabHolder.BackgroundTransparency = 1
+    win.TabHolder.ScrollBarThickness = 0
 
-    local vp   = Camera.ViewportSize
-    local size = ActiveMinimizer.AbsoluteSize
+    -- Content area
+    win.Container = Instance.new("Frame", win.Root)
+    win.Container.Size = UDim2.new(1, -190, 1, -70)
+    win.Container.Position = UDim2.new(0, 180, 0, 60)
+    win.Container.BackgroundTransparency = 1
 
-    newX = math.clamp(newX, 0, vp.X - size.X)
-    newY = math.clamp(newY, 0, vp.Y - size.Y)
+    Library.Window = win
+    return win
+end
 
-    ActiveMinimizer.Position = UDim2.new(0, newX, 0, newY)
-end)
-
+-- ────────────────────────────────────────────────
+-- Minimizer (floating orb)
+-- ────────────────────────────────────────────────
 
 function Library:CreateMinimizer(cfg)
     cfg = cfg or {}
 
-    if Library.Minimizer and Library.Minimizer.Parent then
-        return Library.Minimizer
-    end
-
     local holder = Instance.new("Frame")
-    holder.Name               = "FluentMinimizer"
+    holder.Name = "RoboticMinimizer"
+    holder.Size = UDim2.fromOffset(54, 54)
+    holder.Position = UDim2.new(0.5, -27, 0.03, 0)
     holder.BackgroundTransparency = 1
-    holder.Size               = cfg.Size or UDim2.fromOffset(42, 42)
-    holder.Position           = cfg.Position or UDim2.new(0.5, -21, 0.03, 0)
-    holder.ZIndex             = 999999999
-    holder.Parent             = Library.GUI
-    holder.Visible            = cfg.Visible ~= false
+    holder.ZIndex = 999999999
+    holder.Parent = Library.GUI
 
-    local button = Instance.new("TextButton")
-    button.Name               = "MinimizeButton"
-    button.Size               = UDim2.fromScale(1,1)
-    button.BackgroundTransparency = 0.1
-    button.AutoButtonColor    = true
-    button.Text               = ""
-    button.Parent             = holder
+    local btn = Instance.new("TextButton", holder)
+    btn.Size = UDim2.fromScale(1,1)
+    btn.BackgroundColor3 = Color3.fromRGB(8, 18, 35)
+    btn.BackgroundTransparency = 0.35
+    btn.Text = ""
 
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius       = UDim.new(0, 14)
-    corner.Parent             = button
+    local corner = Instance.new("UICorner", btn)
+    corner.CornerRadius = UDim.new(1, 0)
 
-    local stroke = Instance.new("UIStroke")
-    stroke.Transparency       = 0.65
-    stroke.Thickness          = 1.8
-    stroke.Color              = Color3.fromRGB(80, 180, 255)
-    stroke.Parent             = button
+    local stroke = Instance.new("UIStroke", btn)
+    stroke.Color = Color3.fromRGB(0, 255, 220)
+    stroke.Thickness = 2.2
+    stroke.Transparency = 0.4
+    stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
-    local icon = Instance.new("ImageLabel")
-    icon.Name                 = "Icon"
-    icon.Size                 = UDim2.fromScale(0.65, 0.65)
-    icon.Position             = UDim2.fromScale(0.5, 0.5)
-    icon.AnchorPoint          = Vector2.new(0.5, 0.5)
+    local glow = Instance.new("UIGradient", btn)
+    glow.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 255, 220)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 120, 180))
+    }
+    glow.Rotation = 45
+
+    local icon = Instance.new("ImageLabel", btn)
+    icon.Size = UDim2.fromScale(0.62, 0.62)
+    icon.Position = UDim2.fromScale(0.5, 0.5)
+    icon.AnchorPoint = Vector2.new(0.5, 0.5)
     icon.BackgroundTransparency = 1
-    icon.Image                = "rbxassetid://10734897102"   
-    icon.ImageColor3          = Color3.fromRGB(210, 240, 255)
-    icon.Parent               = button
+    icon.Image = "rbxassetid://10734897102"
+    icon.ImageColor3 = Color3.fromRGB(220, 255, 250)
 
     -- Dragging
-    button.InputBegan:Connect(OnDragInputBegan)
-    button.InputEnded:Connect(OnDragInputEnded)
+    local dragging, dragStart, dragOffset
+    btn.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = Vector2.new(input.Position.X, input.Position.Y)
+            dragOffset = holder.Position
+        end
+    end)
 
-    -- Click to minimize / restore
-    button.MouseButton1Click:Connect(function()
+    btn.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end)
+
+    Services.RunService.Heartbeat:Connect(function()
+        if not dragging then return end
+        local current = Vector2.new(Mouse.X, Mouse.Y)
+        local delta = current - dragStart
+        local newX = dragOffset.X.Offset + delta.X
+        local newY = dragOffset.Y.Offset + delta.Y
+        local vp = Camera.ViewportSize
+        local sz = holder.AbsoluteSize
+        newX = math.clamp(newX, 0, vp.X - sz.X)
+        newY = math.clamp(newY, 0, vp.Y - sz.Y)
+        holder.Position = UDim2.new(0, newX, 0, newY)
+    end)
+
+    btn.MouseButton1Click:Connect(function()
         task.delay(0.06, function()
-            if MinimizerDragging then return end
-            if Library.Window and Library.Window.Minimize then
-                Library.Window:Minimize()
+            if dragging then return end
+            if Library.Window and Library.Window.Root then
+                Library.Window.Root.Visible = not Library.Window.Root.Visible
             end
         end)
     end)
@@ -171,5 +297,110 @@ function Library:CreateMinimizer(cfg)
     return holder
 end
 
+-- ────────────────────────────────────────────────
+-- Destroy
+-- ────────────────────────────────────────────────
 
-return Library, SaveManager, InterfaceManager, Mobile
+function Library:Destroy()
+    if Library.Window then
+        if Library.UseAcrylic and Library.Window.AcrylicPaint and Library.Window.AcrylicPaint.Model then
+            Library.Window.AcrylicPaint.Model:Destroy()
+        end
+        if Library.GUI then
+            Library.GUI:Destroy()
+        end
+    end
+end
+
+-- ────────────────────────────────────────────────
+-- Simple Notify (cyberpunk style)  ← FIXED VERSION
+-- ────────────────────────────────────────────────
+
+function Library:Notify(cfg)
+    cfg = cfg or {}
+    local title = cfg.Title or "Notification"
+    local content = cfg.Content or ""
+    local duration = cfg.Duration or 5
+
+    task.spawn(function()
+        local notif = Instance.new("Frame")
+        notif.Size = UDim2.new(0, 320, 0, 80)
+        notif.Position = UDim2.new(1, -340, 1, -100)
+        notif.BackgroundColor3 = Color3.fromRGB(8, 18, 35)
+        notif.BackgroundTransparency = 0.35
+        notif.BorderSizePixel = 0
+        notif.Parent = Library.GUI
+        notif.ZIndex = 999999
+
+        local corner = Instance.new("UICorner", notif)
+        corner.CornerRadius = UDim.new(0, 12)
+
+        local stroke = Instance.new("UIStroke", notif)
+        stroke.Color = Color3.fromRGB(0, 255, 220)
+        stroke.Thickness = 1.5
+        stroke.Transparency = 0.5
+        stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+
+        local titleLabel = Instance.new("TextLabel", notif)
+        titleLabel.Size = UDim2.new(1, -20, 0, 24)
+        titleLabel.Position = UDim2.new(0, 10, 0, 8)
+        titleLabel.BackgroundTransparency = 1
+        titleLabel.Text = title
+        titleLabel.TextColor3 = Color3.fromRGB(0, 255, 220)
+        titleLabel.TextSize = 16
+        titleLabel.FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Bold)
+        titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+        local contentLabel = Instance.new("TextLabel", notif)
+        contentLabel.Size = UDim2.new(1, -20, 0, 40)
+        contentLabel.Position = UDim2.new(0, 10, 0, 34)
+        contentLabel.BackgroundTransparency = 1
+        contentLabel.Text = content
+        contentLabel.TextColor3 = Color3.fromRGB(220, 255, 250)
+        contentLabel.TextSize = 14
+        contentLabel.TextWrapped = true
+        contentLabel.TextXAlignment = Enum.TextXAlignment.Left
+        contentLabel.FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json")
+
+        -- Fade in
+        notif.BackgroundTransparency = 1
+        titleLabel.TextTransparency = 1
+        contentLabel.TextTransparency = 1
+
+        TweenService:Create(notif, TweenInfo.new(0.4), {BackgroundTransparency = 0.35}):Play()
+        TweenService:Create(titleLabel, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+        TweenService:Create(contentLabel, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+
+        task.wait(duration)
+
+        -- Fade out
+        TweenService:Create(notif, TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
+        TweenService:Create(titleLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+        TweenService:Create(contentLabel, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+
+        task.delay(0.6, function()
+            notif:Destroy()
+        end)
+    end)
+end
+
+-- ────────────────────────────────────────────────
+-- Quick test load (MOVED TO END - THIS FIXES THE ERROR)
+-- ────────────────────────────────────────────────
+
+task.spawn(function()
+    task.wait(0.8)
+    
+    Library:CreateMinimizer()
+    
+    Library:CreateWindow({
+        Title = "Robotic Interface",
+        Size = UDim2.fromOffset(620, 480),
+        Acrylic = true,
+        Theme = "Robotic"
+    })
+
+    
+end)    
+
+return Library
