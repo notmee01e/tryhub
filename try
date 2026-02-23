@@ -3314,7 +3314,7 @@ Components.Window = (function()
 			RichText = true,
 			Text = "Tab",
 			TextTransparency = 0,
-			FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),
+			FontFace = Font.new("rbxassetid://12187371840", Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),
 			TextSize = 28,
 			TextXAlignment = "Left",
 			TextYAlignment = "Center",
@@ -6469,8 +6469,8 @@ local Icons = {
 	["lucide-timer"] = "rbxassetid://10734984606",
 	["lucide-timer-off"] = "rbxassetid://10734984138",
 	["lucide-timer-reset"] = "rbxassetid://10734984355",
-	["lucide-toggle-left"] = "rbxassetid://10734984834",
-	["lucide-toggle-right"] = "rbxassetid://10734985040",
+	["lucide-toggle-left"] = "rbxassetid://102399463738649",
+	["lucide-toggle-right"] = "rbxassetid://115390529982428",
 	["lucide-tornado"] = "rbxassetid://10734985247",
 	["lucide-toy-brick"] = "rbxassetid://10747361919",
 	["lucide-train"] = "rbxassetid://10747362105",
@@ -7028,7 +7028,7 @@ function Library:CreateWindow(Config)
 	Library.MinimizeKey = Config.MinimizeKey or Enum.KeyCode.LeftControl
 	Library.UseAcrylic = Config.Acrylic or false
 	Library.Acrylic = Config.Acrylic or false
-	Library.Theme = Config.Theme or "Dark"
+	Library.Theme = Config.Theme or "rbxassetid://100445510581838"
 
 	if Config.Acrylic then
 		Acrylic.init()
