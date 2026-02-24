@@ -1695,7 +1695,7 @@ function AcrylicPaint()
                 ZIndex = 2,
             }, {
                 New("UICorner", {
-                    CornerRadius = UDim.new(1, 2),
+                    CornerRadius = UDim.new(0, 9),
                 }),
             }),
 
@@ -1706,7 +1706,7 @@ function AcrylicPaint()
                 Size = UDim2.fromScale(1, 1),
                 ZIndex = 3,
             }, {
-                New("UICorner", {CornerRadius = UDim.new(1, 1 )}),
+                New("UICorner", {CornerRadius = UDim.new(0, 9 )}),
                 New("UIGradient", {
                     Rotation = 90,
                     Color = ColorSequence.new{
@@ -1724,7 +1724,7 @@ function AcrylicPaint()
                 BackgroundColor3 = Color3.fromRGB(255, 0, 0),
                 ZIndex = 4,
             }, {
-                New("UICorner", {CornerRadius = UDim.new(1, 1)}),
+                New("UICorner", {CornerRadius = UDim.new(0, 9)}),
                 New("UIGradient", {
                     Name = "PulseGradient",
                     Rotation = 45,
@@ -1747,7 +1747,7 @@ function AcrylicPaint()
                 Size = UDim2.fromScale(1, 1),
                 ZIndex = 5,
             }, {
-                New("UICorner", {CornerRadius = UDim.new(1, 1)}),
+                New("UICorner", {CornerRadius = UDim.new(0, 9)}),
                 New("UIStroke", {
                     Name = "GlowStroke",
                     Color = Color3.fromRGB(200, 0, 0),
@@ -1768,7 +1768,7 @@ function AcrylicPaint()
                 BackgroundTransparency = 1,
                 ZIndex = 6,
             }, {
-                New("UICorner", {CornerRadius = UDim.new(1, 1)}),
+                New("UICorner", {CornerRadius = UDim.new(0, 9)}),
             }),
 
             New("ImageLabel", {
@@ -1782,7 +1782,7 @@ function AcrylicPaint()
                 ThemeTag = {ImageTransparency = "AcrylicNoise"},
                 ZIndex = 7,
             }, {
-                New("UICorner", {CornerRadius = UDim.new(1, 1)}),
+                New("UICorner", {CornerRadius = UDim.new(0, 9)}),
             }),
         })
 
@@ -1796,7 +1796,7 @@ function AcrylicPaint()
         local glowStroke = AcrylicPaint.Frame:FindFirstChild("GlowStroke", true)
         if glowStroke then
             TweenService:Create(glowStroke, pulseTweenInfo, {
-                Transparency = 0.3,
+                Transparency = 0.5,
                 Thickness = 3,
             }):Play()
         end
