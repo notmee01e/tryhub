@@ -1750,7 +1750,7 @@ function AcrylicPaint()
                 Size = UDim2.fromScale(1.40, 1.40),
                 AnchorPoint = Vector2.new(0.5, 0.5),
                 Position = UDim2.fromScale(0.5, 0.5),
-                BackgroundTransparency = 5,
+                BackgroundTransparency = 10,
                 ZIndex = 1,
             }, {
                 New("UICorner", {CornerRadius = UDim.new(0, 8)}),
