@@ -1768,7 +1768,7 @@ function AcrylicPaint()
                 BackgroundTransparency = 1,
                 ZIndex = 6,
             }, {
-                New("UICorner", {CornerRadius = UDim.new(1, 0)}),
+                New("UICorner", {CornerRadius = UDim.new(0, 7)}),
             }),
 
             New("ImageLabel", {
@@ -1782,7 +1782,7 @@ function AcrylicPaint()
                 ThemeTag = {ImageTransparency = "AcrylicNoise"},
                 ZIndex = 7,
             }, {
-                New("UICorner", {CornerRadius = UDim.new(0, 8)}),
+                New("UICorner", {CornerRadius = UDim.new(0, 7)}),
             }),
         })
 
