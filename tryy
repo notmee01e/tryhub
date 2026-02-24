@@ -1652,42 +1652,63 @@ function AcrylicPaint()
             BackgroundTransparency = 0.75,
             BackgroundColor3 = Color3.fromRGB(255, 255, 255),
             BorderSizePixel = 0,
+            ClipsDescendants = true,  -- prevents child overflow
         }, {
-            -- Shadow/vignette (black with red tint option)
+            -- Shadow/vignette (centered & slightly oversized for soft edges)
             New("ImageLabel", {
-                Image = "rbxassetid://92036990006009",
+                Image = "rbxassetid://6071579801",  -- fallback reliable vignette if thunder doesn't fit well
                 ScaleType = Enum.ScaleType.Slice,
                 SliceCenter = Rect.new(49, 49, 450, 450),
                 AnchorPoint = Vector2.new(0.5, 0.5),
-                Size = UDim2.new(830, 600),
+                Size = UDim2.new(1, 40, 1, 40),  -- slight pixel overshoot for shadow bleed (scale + offset)
                 Position = UDim2.new(0.5, 0, 0.5, 0),
                 BackgroundTransparency = 1,
-                ImageColor3 = Color3.fromRGB(50, 0, 0), -- Dark red-black shadow
+                ImageColor3 = Color3.fromRGB(50, 0, 0),
                 ImageTransparency = 0.60,
+                ZIndex = 0,
             }),
+
             New("UICorner", {
                 CornerRadius = UDim.new(0, 8),
             }),
+
+            -- Thunder/lightning background overlay (tiled + red tint)
+            New("ImageLabel", {
+                Image = "rbxassetid://13773336783",  -- your thunder flipbook-style asset
+                ImageTransparency = 0.75,
+                ImageColor3 = Color3.fromRGB(180, 20, 20),
+                ScaleType = Enum.ScaleType.Tile,
+                TileSize = UDim2.new(0, 256, 0, 256),  -- good size for visible patterns without too much repetition
+                Size = UDim2.fromScale(1, 1),
+                Position = UDim2.fromScale(0, 0),
+                AnchorPoint = Vector2.new(0, 0),
+                BackgroundTransparency = 1,
+                ZIndex = 1,
+            }, {
+                New("UICorner", {CornerRadius = UDim.new(0, 8)}),
+            }),
+
             -- Main acrylic tint (dark red-black base)
             New("Frame", {
                 BackgroundTransparency = 0.40,
                 Size = UDim2.fromScale(1, 1),
                 Name = "Background",
-                BackgroundColor3 = Color3.fromRGB(20, 0, 0), -- Deep black-red
+                BackgroundColor3 = Color3.fromRGB(20, 0, 0),
+                ZIndex = 2,
             }, {
                 New("UICorner", {
                     CornerRadius = UDim.new(0, 8),
                 }),
             }),
-            -- Light gradient overlay (white → faint red for depth)
+
+            -- Light gradient overlay
             New("Frame", {
                 BackgroundColor3 = Color3.fromRGB(255, 255, 255),
                 BackgroundTransparency = 0.70,
                 Size = UDim2.fromScale(1, 1),
+                ZIndex = 3,
             }, {
-                New("UICorner", {
-                    CornerRadius = UDim.new(0, 8),
-                }),
+                New("UICorner", {CornerRadius = UDim.new(0, 8)}),
                 New("UIGradient", {
                     Rotation = 90,
                     Color = ColorSequence.new{
@@ -1696,21 +1717,23 @@ function AcrylicPaint()
                     },
                 }),
             }),
-            -- Pulsing red-black gradient animation layer (glow/pulse effect)
+
+            -- Pulsing red-black gradient animation layer
             New("Frame", {
                 Name = "PulseLayer",
                 BackgroundTransparency = 0.65,
                 Size = UDim2.fromScale(1, 1),
                 BackgroundColor3 = Color3.fromRGB(255, 0, 0),
+                ZIndex = 4,
             }, {
                 New("UICorner", {CornerRadius = UDim.new(0, 8)}),
                 New("UIGradient", {
                     Name = "PulseGradient",
                     Rotation = 45,
                     Color = ColorSequence.new{
-                        ColorSequenceKeypoint.new(0, Color3.fromRGB(150, 0, 0)), -- Bright red
-                        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(50, 0, 0)), -- Mid dark red
-                        ColorSequenceKeypoint.new(1, Color3.fromRGB(10, 0, 0)) -- Near black
+                        ColorSequenceKeypoint.new(0, Color3.fromRGB(150, 0, 0)),
+                        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(50, 0, 0)),
+                        ColorSequenceKeypoint.new(1, Color3.fromRGB(10, 0, 0))
                     },
                     Transparency = NumberSequence.new{
                         NumberSequenceKeypoint.new(0, 0.4),
@@ -1719,85 +1742,85 @@ function AcrylicPaint()
                     Offset = Vector2.new(0, 0)
                 }),
             }),
-            -- Pulsing border glow (red stroke that breathes)
+
+            -- Pulsing border glow
             New("Frame", {
                 BackgroundTransparency = 1,
                 Size = UDim2.fromScale(1, 1),
-                ZIndex = 2,
+                ZIndex = 5,
             }, {
                 New("UICorner", {CornerRadius = UDim.new(0, 8)}),
                 New("UIStroke", {
                     Name = "GlowStroke",
-                    Color = Color3.fromRGB(200, 0, 0), -- Vibrant red
+                    Color = Color3.fromRGB(200, 0, 0),
                     Transparency = 0.4,
                     Thickness = 2,
                     ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
                 }),
             }),
-            -- Noise layers (kept subtle)
+
+            -- Noise layers (full scale, no absolute sizes)
             New("ImageLabel", {
-                Image = "rbxassetid://92036990006009",
+                Image = "rbxassetid://9968344227",
                 ImageTransparency = 0.92,
                 ScaleType = Enum.ScaleType.Tile,
                 TileSize = UDim2.new(0, 128, 0, 128),
-                Size = UDim2.fromScale(830, 600),
+                Size = UDim2.fromScale(1, 1),
+                Position = UDim2.fromScale(0, 0),
                 BackgroundTransparency = 1,
+                ZIndex = 6,
             }, {
                 New("UICorner", {CornerRadius = UDim.new(0, 8)}),
             }),
+
             New("ImageLabel", {
-                Image = "rbxassetid://92036990006009",
+                Image = "rbxassetid://9968344227",
                 ImageTransparency = 0.70,
                 ScaleType = Enum.ScaleType.Tile,
                 TileSize = UDim2.new(0, 128, 0, 128),
-                Size = UDim2.fromScale(830, 600),
+                Size = UDim2.fromScale(1, 1),
+                Position = UDim2.fromScale(0, 0),
                 BackgroundTransparency = 1,
                 ThemeTag = {ImageTransparency = "AcrylicNoise"},
+                ZIndex = 7,
             }, {
                 New("UICorner", {CornerRadius = UDim.new(0, 8)}),
             }),
         })
-        -- Animation loop: Pulse the gradient offset + stroke transparency
-        local pulseTweenInfo = TweenInfo.new(2.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true) -- Infinite, yoyo
-        -- Gradient slide + subtle color shift
+
+        -- (your animations remain unchanged - pulse + thunder flash)
+        local pulseTweenInfo = TweenInfo.new(2.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
         local pulseGradient = AcrylicPaint.Frame.PulseLayer.PulseGradient
         TweenService:Create(pulseGradient, pulseTweenInfo, {
-            Offset = Vector2.new(0.3, 0.3), -- Slide diagonally for dynamic feel
+            Offset = Vector2.new(0.3, 0.3),
         }):Play()
-        -- Border glow pulse (thicker/more visible then fade)
+
         local glowStroke = AcrylicPaint.Frame:FindFirstChild("GlowStroke", true)
         if glowStroke then
             TweenService:Create(glowStroke, pulseTweenInfo, {
-                Transparency = 0.3, -- From 0.4 → brighter glow
-                Thickness = 3, -- Slight thickness pulse
+                Transparency = 0.3,
+                Thickness = 3,
             }):Play()
         end
 
-       
         local flashInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
         local flashBackInfo = TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.In)
 
         spawn(function()
             while true do
-                wait(math.random(4, 12))  -- random interval ~4-12 sec
-
-                -- Quick bright flash on border
+                wait(math.random(4, 12))
                 if glowStroke then
                     TweenService:Create(glowStroke, flashInfo, {
                         Transparency = 0.05,
                         Thickness = 4.5,
-                        Color = Color3.fromRGB(255, 80, 80)  -- brighter red flash
+                        Color = Color3.fromRGB(255, 80, 80)
                     }):Play()
                 end
-
-                -- Intense red glow on pulse layer (thunder shine)
                 local pulseFrame = AcrylicPaint.Frame.PulseLayer
                 local origTrans = pulseFrame.BackgroundTransparency
                 TweenService:Create(pulseFrame, flashInfo, {
-                    BackgroundTransparency = 0.25  -- stronger red shine
+                    BackgroundTransparency = 0.25
                 }):Play()
-
-                -- Back to normal
                 wait(0.15)
                 if glowStroke then
                     TweenService:Create(glowStroke, flashBackInfo, {
@@ -1811,7 +1834,6 @@ function AcrylicPaint()
                 }):Play()
             end
         end)
-       
 
         local Blur
         if Library.UseAcrylic then
@@ -1834,14 +1856,12 @@ local Acrylic = {
 function Acrylic.init()
     local depthOfFieldDefaults = {}
     function Acrylic.Enable()
-    -- 1
+        -- 1
     end
     function Acrylic.Disable()
-    -- 2
+        -- 2
     end
 end
-
-
 
 local Components = {
 	Assets = {
