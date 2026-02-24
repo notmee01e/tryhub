@@ -1640,7 +1640,6 @@ function AcrylicBlur()
 		return Blur
 	end
 end
-
 function AcrylicPaint()
     local New = Creator.New
     local AcrylicBlur = AcrylicBlur()
@@ -1654,7 +1653,7 @@ function AcrylicPaint()
             BorderSizePixel = 0,
             ClipsDescendants = true,
         }, {
-            -- Shadow/vignette (soft edges, slightly oversized)
+            -- Shadow/vignette (soft edges)
             New("ImageLabel", {
                 Image = "rbxassetid://6071579801",
                 ScaleType = Enum.ScaleType.Slice,
@@ -1672,16 +1671,15 @@ function AcrylicPaint()
                 CornerRadius = UDim.new(0, 8),
             }),
 
-            -- Your custom background image (main layer)
+            -- SLH hexagon logo as centered background
             New("ImageLabel", {
-                Image = "rbxassetid://100445510581838",  -- your requested ID
-                ImageTransparency = 0.70,                -- adjust: lower = stronger/more visible
-                ImageColor3 = Color3.fromRGB(180, 20, 20),  -- red tint to fit theme (remove if unwanted)
-                ScaleType = Enum.ScaleType.Tile,         -- Tile for repeating; change to Fit/Stretch if single image
-                TileSize = UDim2.new(0, 256, 0, 256),    -- good default; tweak for pattern size
-                Size = UDim2.fromScale(1, 1),
-                Position = UDim2.fromScale(0, 0),
-                AnchorPoint = Vector2.new(0, 0),
+                Image = "rbxassetid://100445510581838",  -- ← Upload & paste real ID here
+                ImageTransparency = 0.65,                       -- 0.5–0.8 for good visibility/blend
+                ImageColor3 = Color3.fromRGB(255, 255, 255),    -- Keep white (or red tint: 180,20,20)
+                ScaleType = Enum.ScaleType.Fit,                 -- Best for logos: fits without stretch
+                Size = UDim2.fromScale(0.7, 0.7),               -- Adjust size: smaller for subtle, larger for bold
+                AnchorPoint = Vector2.new(0.5, 0.5),
+                Position = UDim2.fromScale(0.5, 0.5),           -- Perfect center
                 BackgroundTransparency = 1,
                 ZIndex = 1,
             }, {
@@ -1701,7 +1699,7 @@ function AcrylicPaint()
                 }),
             }),
 
-            -- Light gradient overlay for depth
+            -- Light gradient overlay
             New("Frame", {
                 BackgroundColor3 = Color3.fromRGB(255, 255, 255),
                 BackgroundTransparency = 0.70,
@@ -1718,7 +1716,7 @@ function AcrylicPaint()
                 }),
             }),
 
-            -- Pulsing red-black gradient animation layer
+            -- Pulsing red-black gradient layer
             New("Frame", {
                 Name = "PulseLayer",
                 BackgroundTransparency = 0.65,
@@ -1759,7 +1757,7 @@ function AcrylicPaint()
                 }),
             }),
 
-            -- Noise layers (subtle grain)
+            -- Noise layers
             New("ImageLabel", {
                 Image = "rbxassetid://9968344227",
                 ImageTransparency = 0.92,
@@ -1788,14 +1786,13 @@ function AcrylicPaint()
             }),
         })
 
-        -- Pulse animation (gradient slide)
+        -- Pulse animation
         local pulseTweenInfo = TweenInfo.new(2.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
         local pulseGradient = AcrylicPaint.Frame.PulseLayer.PulseGradient
         TweenService:Create(pulseGradient, pulseTweenInfo, {
             Offset = Vector2.new(0.3, 0.3),
         }):Play()
 
-        -- Border glow pulse
         local glowStroke = AcrylicPaint.Frame:FindFirstChild("GlowStroke", true)
         if glowStroke then
             TweenService:Create(glowStroke, pulseTweenInfo, {
@@ -1804,8 +1801,8 @@ function AcrylicPaint()
             }):Play()
         end
 
-        -- Thunder/red lightning flash effect (random quick flashes)
-        local flashInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+        -- Thunder/red flash effect
+        local flashInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
         local flashBackInfo = TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.In)
 
         spawn(function()
@@ -1823,10 +1820,10 @@ function AcrylicPaint()
                 TweenService:Create(pulseFrame, flashInfo, {
                     BackgroundTransparency = 0.25
                 }):Play()
-                wait(0.15)
+                wait(0.5)
                 if glowStroke then
                     TweenService:Create(glowStroke, flashBackInfo, {
-                        Transparency = 0.4,
+                        Transparency = 0.3,
                         Thickness = 2,
                         Color = Color3.fromRGB(200, 0, 0)
                     }):Play()
