@@ -1655,7 +1655,7 @@ function AcrylicPaint()
         }, {
             -- Shadow/vignette (soft edges)
             New("ImageLabel", {
-                Image = "rbxassetid://94644747314925",
+                Image = "rbxassetid://112528576571248",
                 ScaleType = Enum.ScaleType.Slice,
                 SliceCenter = Rect.new(49, 49, 450, 450),
                 AnchorPoint = Vector2.new(0.5, 0.5),
