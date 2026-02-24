@@ -1654,17 +1654,16 @@ function AcrylicPaint()
 			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 			BorderSizePixel = 0,
 		}, {
-			-- Replaced dead asset with a common working rounded shadow/vignette
 			New("ImageLabel", {
-				Image = "rbxassetid://6071579801",           -- reliable white rounded square (recolored black)
-				ScaleType = Enum.ScaleType.Slice,
-				SliceCenter = Rect.new(49, 49, 450, 450),    -- better slice values for this asset
+				Image = "rbxassetid://6071579801",
+				ScaleType = "Slice",
+				SliceCenter = Rect.new(49, 49, 450, 450),
 				AnchorPoint = Vector2.new(0.5, 0.5),
-				Size = UDim2.new(1, 140, 1, 140),            -- slightly larger for softer shadow
+				Size = UDim2.new(1, 140, 1, 140),
 				Position = UDim2.new(0.5, 0, 0.5, 0),
 				BackgroundTransparency = 1,
 				ImageColor3 = Color3.fromRGB(0, 0, 0),
-				ImageTransparency = 0.65,                    -- tuned to be visible but subtle
+				ImageTransparency = 0.65,
 			}),
 
 			New("UICorner", {
@@ -1703,7 +1702,7 @@ function AcrylicPaint()
 
 			New("ImageLabel", {
 				Image = "rbxassetid://9968344105",
-				ImageTransparency = 0.96,                    -- slightly more visible
+				ImageTransparency = 0.96,
 				ScaleType = Enum.ScaleType.Tile,
 				TileSize = UDim2.new(0, 128, 0, 128),
 				Size = UDim2.fromScale(1, 1),
@@ -1716,7 +1715,7 @@ function AcrylicPaint()
 
 			New("ImageLabel", {
 				Image = "rbxassetid://9968344227",
-				ImageTransparency = 0.82,                    -- tuned noise visibility
+				ImageTransparency = 0.82,
 				ScaleType = Enum.ScaleType.Tile,
 				TileSize = UDim2.new(0, 128, 0, 128),
 				Size = UDim2.fromScale(1, 1),
@@ -1761,6 +1760,27 @@ function AcrylicPaint()
 		return AcrylicPaint
 	end
 end
+
+local Acrylic = {
+	AcrylicBlur = AcrylicBlur(),
+	CreateAcrylic = createAcrylic,
+	AcrylicPaint = AcrylicPaint(),
+}
+
+function Acrylic.init()
+	local depthOfFieldDefaults = {}
+
+	function Acrylic.Enable()
+	-- 1
+	end
+
+	function Acrylic.Disable()
+	-- 2
+	end
+
+end
+
+
 
 local Components = {
 	Assets = {
