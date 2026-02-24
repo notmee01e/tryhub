@@ -1675,9 +1675,9 @@ function AcrylicPaint()
             New("ImageLabel", {
                 Image = "rbxassetid://100445510581838",  -- ← Upload & paste real ID here
                 ImageTransparency = 0.65,                       -- 0.5–0.8 for good visibility/blend
-                ImageColor3 = Color3.fromRGB(255, 255, 255),    -- Keep white (or red tint: 180,20,20)
+                ImageColor3 = Color3.fromRGB(180, 20, 20),    -- Keep white (or red tint: 180,20,20)
                 ScaleType = Enum.ScaleType.Fit,                 -- Best for logos: fits without stretch
-                Size = UDim2.fromScale(0.7, 0.7),               -- Adjust size: smaller for subtle, larger for bold
+                Size = UDim2.fromScale(1.40, 1.40),               -- Adjust size: smaller for subtle, larger for bold
                 AnchorPoint = Vector2.new(0.5, 0.5),
                 Position = UDim2.fromScale(0.5, 0.5),           -- Perfect center
                 BackgroundTransparency = 1,
@@ -1773,7 +1773,7 @@ function AcrylicPaint()
 
             New("ImageLabel", {
                 Image = "rbxassetid://9968344227",
-                ImageTransparency = 0.70,
+                ImageTransparency = 0.92,
                 ScaleType = Enum.ScaleType.Tile,
                 TileSize = UDim2.new(0, 128, 0, 128),
                 Size = UDim2.fromScale(1, 1),
