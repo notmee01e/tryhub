@@ -1655,7 +1655,7 @@ function AcrylicPaint()
 			BorderSizePixel = 0,
 		}, {
 			New("ImageLabel", {
-				Image = "rbxassetid://8992230677",
+				Image = "rbxassetid://112528576571248",
 				ScaleType = "Slice",
 				SliceCenter = Rect.new(Vector2.new(99, 99), Vector2.new(99, 99)),
 				AnchorPoint = Vector2.new(0.5, 0.5),
@@ -2100,7 +2100,7 @@ Components.Section = (function()
 				RichText = true,
 				Text = Title,
 				TextTransparency = 0,
-				FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),
+				FontFace = Font.new("rbxassetid://12187371840", Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),
 				TextSize = 18,
 				TextXAlignment = "Left",
 				TextYAlignment = "Center",
@@ -3312,7 +3312,7 @@ Components.Window = (function()
 
 		Window.TabDisplay = New("TextLabel", {
 			RichText = true,
-			Text = "Tab",
+			Text = "SLH",
 			TextTransparency = 0,
 			FontFace = Font.new("rbxassetid://12187371840", Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),
 			TextSize = 28,
@@ -3854,7 +3854,7 @@ ElementsTable.Toggle = (function()
 			AnchorPoint = Vector2.new(0, 0.5),
 			Size = UDim2.fromOffset(14, 14),
 			Position = UDim2.new(0, 2, 0.5, 0),
-			Image = "http://www.roblox.com/asset/?id=12266946128",
+			Image = "http://www.roblox.com/asset/?id=138751689889190",
 			ImageTransparency = 0.5,
 			ThemeTag = {
 				ImageColor3 = "ToggleSlider",
@@ -4624,7 +4624,7 @@ ElementsTable.Slider = (function()
 			AnchorPoint = Vector2.new(0, 0.5),
 			Position = UDim2.new(0, -7, 0.5, 0),
 			Size = UDim2.fromOffset(14, 14),
-			Image = "http://www.roblox.com/asset/?id=12266946128",
+			Image = "http://www.roblox.com/asset/?id=13311165228",
 			ThemeTag = {
 				ImageColor3 = "Accent",
 			},
