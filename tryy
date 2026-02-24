@@ -1661,7 +1661,7 @@ function AcrylicPaint()
 				ScaleType = Enum.ScaleType.Slice,
 				SliceCenter = Rect.new(49, 49, 450, 450),
 				AnchorPoint = Vector2.new(0.5, 0.5),
-				Size = UDim2.new(1, 140, 1, 140),
+				Size = UDim2.new(830, 600),
 				Position = UDim2.new(0.5, 0, 0.5, 0),
 				BackgroundTransparency = 1,
 				ImageColor3 = Color3.fromRGB(30, 0, 0),  -- Dark red-black shadow
@@ -1751,7 +1751,7 @@ function AcrylicPaint()
 				ImageTransparency = 0.92,
 				ScaleType = Enum.ScaleType.Tile,
 				TileSize = UDim2.new(0, 128, 0, 128),
-				Size = UDim2.fromScale(1, 1),
+				Size = UDim2.fromScale(830, 600),
 				BackgroundTransparency = 1,
 			}, {
 				New("UICorner", {CornerRadius = UDim.new(0, 8)}),
@@ -1762,7 +1762,7 @@ function AcrylicPaint()
 				ImageTransparency = 0.70,
 				ScaleType = Enum.ScaleType.Tile,
 				TileSize = UDim2.new(0, 128, 0, 128),
-				Size = UDim2.fromScale(1, 1),
+				Size = UDim2.fromScale(830, 600),
 				BackgroundTransparency = 1,
 				ThemeTag = {ImageTransparency = "AcrylicNoise"},
 			}, {
@@ -1783,7 +1783,7 @@ function AcrylicPaint()
 		local glowStroke = AcrylicPaint.Frame:FindFirstChild("GlowStroke", true)
 		if glowStroke then
 			TweenService:Create(glowStroke, pulseTweenInfo, {
-				Transparency = 0.15,  -- From 0.4 → brighter glow
+				Transparency = 0.3,  -- From 0.4 → brighter glow
 				Thickness = 3,        -- Slight thickness pulse
 			}):Play()
 		end
@@ -3144,13 +3144,13 @@ Components.TitleBar = (function()
 				Content = "Are you sure you want to unload the interface?",
 				Buttons = {
 					{
-						Title = "Yes",
+						Title = "YES DADY",
 						Callback = function()
 							Library:Destroy()
 						end,
 					},
 					{
-						Title = "No",
+						Title = "NO DADY",
 					},
 				},
 			})
