@@ -1652,15 +1652,15 @@ function AcrylicPaint()
             BackgroundTransparency = 0.75,
             BackgroundColor3 = Color3.fromRGB(255, 255, 255),
             BorderSizePixel = 0,
-            ClipsDescendants = true,  -- prevents child overflow
+            ClipsDescendants = true,
         }, {
-            -- Shadow/vignette (centered & slightly oversized for soft edges)
+            -- Shadow/vignette (soft edges, slightly oversized)
             New("ImageLabel", {
-                Image = "rbxassetid://6071579801",  -- fallback reliable vignette if thunder doesn't fit well
+                Image = "rbxassetid://6071579801",
                 ScaleType = Enum.ScaleType.Slice,
                 SliceCenter = Rect.new(49, 49, 450, 450),
                 AnchorPoint = Vector2.new(0.5, 0.5),
-                Size = UDim2.new(1, 40, 1, 40),  -- slight pixel overshoot for shadow bleed (scale + offset)
+                Size = UDim2.new(1, 40, 1, 40),
                 Position = UDim2.new(0.5, 0, 0.5, 0),
                 BackgroundTransparency = 1,
                 ImageColor3 = Color3.fromRGB(50, 0, 0),
@@ -1672,13 +1672,13 @@ function AcrylicPaint()
                 CornerRadius = UDim.new(0, 8),
             }),
 
-            -- Thunder/lightning background overlay (tiled + red tint)
+            -- Your custom background image (main layer)
             New("ImageLabel", {
-                Image = "rbxassetid://13773336783",  -- your thunder flipbook-style asset
-                ImageTransparency = 0.75,
-                ImageColor3 = Color3.fromRGB(180, 20, 20),
-                ScaleType = Enum.ScaleType.Tile,
-                TileSize = UDim2.new(0, 256, 0, 256),  -- good size for visible patterns without too much repetition
+                Image = "rbxassetid://100445510581838",  -- your requested ID
+                ImageTransparency = 0.70,                -- adjust: lower = stronger/more visible
+                ImageColor3 = Color3.fromRGB(180, 20, 20),  -- red tint to fit theme (remove if unwanted)
+                ScaleType = Enum.ScaleType.Tile,         -- Tile for repeating; change to Fit/Stretch if single image
+                TileSize = UDim2.new(0, 256, 0, 256),    -- good default; tweak for pattern size
                 Size = UDim2.fromScale(1, 1),
                 Position = UDim2.fromScale(0, 0),
                 AnchorPoint = Vector2.new(0, 0),
@@ -1701,7 +1701,7 @@ function AcrylicPaint()
                 }),
             }),
 
-            -- Light gradient overlay
+            -- Light gradient overlay for depth
             New("Frame", {
                 BackgroundColor3 = Color3.fromRGB(255, 255, 255),
                 BackgroundTransparency = 0.70,
@@ -1759,7 +1759,7 @@ function AcrylicPaint()
                 }),
             }),
 
-            -- Noise layers (full scale, no absolute sizes)
+            -- Noise layers (subtle grain)
             New("ImageLabel", {
                 Image = "rbxassetid://9968344227",
                 ImageTransparency = 0.92,
@@ -1788,13 +1788,14 @@ function AcrylicPaint()
             }),
         })
 
-        -- (your animations remain unchanged - pulse + thunder flash)
+        -- Pulse animation (gradient slide)
         local pulseTweenInfo = TweenInfo.new(2.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
         local pulseGradient = AcrylicPaint.Frame.PulseLayer.PulseGradient
         TweenService:Create(pulseGradient, pulseTweenInfo, {
             Offset = Vector2.new(0.3, 0.3),
         }):Play()
 
+        -- Border glow pulse
         local glowStroke = AcrylicPaint.Frame:FindFirstChild("GlowStroke", true)
         if glowStroke then
             TweenService:Create(glowStroke, pulseTweenInfo, {
@@ -1803,6 +1804,7 @@ function AcrylicPaint()
             }):Play()
         end
 
+        -- Thunder/red lightning flash effect (random quick flashes)
         local flashInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
         local flashBackInfo = TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.In)
 
@@ -1853,6 +1855,7 @@ local Acrylic = {
     CreateAcrylic = createAcrylic,
     AcrylicPaint = AcrylicPaint(),
 }
+
 function Acrylic.init()
     local depthOfFieldDefaults = {}
     function Acrylic.Enable()
