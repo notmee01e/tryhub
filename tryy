@@ -1650,13 +1650,14 @@ function AcrylicPaint()
 
 		AcrylicPaint.Frame = New("Frame", {
 			Size = UDim2.fromScale(1, 1),
-			BackgroundTransparency = 0.9,
+			BackgroundTransparency = 0.75,  -- Was 0.9 → lowered so base tint shows through better
 			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 			BorderSizePixel = 0,
 		}, {
+			-- Shadow/vignette layer (kept from previous fix)
 			New("ImageLabel", {
 				Image = "rbxassetid://6071579801",
-				ScaleType = "Slice",
+				ScaleType = Enum.ScaleType.Slice,
 				SliceCenter = Rect.new(49, 49, 450, 450),
 				AnchorPoint = Vector2.new(0.5, 0.5),
 				Size = UDim2.new(1, 140, 1, 140),
@@ -1670,12 +1671,13 @@ function AcrylicPaint()
 				CornerRadius = UDim.new(0, 8),
 			}),
 
+			-- Main acrylic tint layer – this is the core "background color"
 			New("Frame", {
-				BackgroundTransparency = 0.45,
+				BackgroundTransparency = 0.35,  -- Was 0.45 → more opaque for visible color
 				Size = UDim2.fromScale(1, 1),
 				Name = "Background",
 				ThemeTag = {
-					BackgroundColor3 = "AcrylicMain",
+					BackgroundColor3 = "AcrylicMain",  -- Usually a dark gray/blue in themes
 				},
 			}, {
 				New("UICorner", {
@@ -1683,9 +1685,10 @@ function AcrylicPaint()
 				}),
 			}),
 
+			-- Light gradient overlay for depth
 			New("Frame", {
 				BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-				BackgroundTransparency = 0.4,
+				BackgroundTransparency = 0.55,  -- Was 0.4 → adjusted for balance
 				Size = UDim2.fromScale(1, 1),
 			}, {
 				New("UICorner", {
@@ -1700,9 +1703,10 @@ function AcrylicPaint()
 				}),
 			}),
 
+			-- Subtle base noise (frosted base)
 			New("ImageLabel", {
 				Image = "rbxassetid://9968344105",
-				ImageTransparency = 0.96,
+				ImageTransparency = 0.92,  -- Was 0.96–0.98 → lower = more visible texture
 				ScaleType = Enum.ScaleType.Tile,
 				TileSize = UDim2.new(0, 128, 0, 128),
 				Size = UDim2.fromScale(1, 1),
@@ -1713,15 +1717,16 @@ function AcrylicPaint()
 				}),
 			}),
 
+			-- Main noise overlay (the "grainy glass" feel)
 			New("ImageLabel", {
 				Image = "rbxassetid://9968344227",
-				ImageTransparency = 0.82,
+				ImageTransparency = 0.70,  -- Was 0.82–0.9 → this makes the frosted look obvious
 				ScaleType = Enum.ScaleType.Tile,
 				TileSize = UDim2.new(0, 128, 0, 128),
 				Size = UDim2.fromScale(1, 1),
 				BackgroundTransparency = 1,
 				ThemeTag = {
-					ImageTransparency = "AcrylicNoise",
+					ImageTransparency = "AcrylicNoise",  -- If theme overrides, this might reset — test
 				},
 			}, {
 				New("UICorner", {
@@ -1729,6 +1734,7 @@ function AcrylicPaint()
 				}),
 			}),
 
+			-- Border stroke
 			New("Frame", {
 				BackgroundTransparency = 1,
 				Size = UDim2.fromScale(1, 1),
@@ -1755,6 +1761,10 @@ function AcrylicPaint()
 			AcrylicPaint.Model = Blur.Model
 			AcrylicPaint.AddParent = Blur.AddParent
 			AcrylicPaint.SetVisibility = Blur.SetVisibility
+			-- Force visibility if module has issues
+			if Blur.SetVisibility then
+				Blur.SetVisibility(true)
+			end
 		end
 
 		return AcrylicPaint
