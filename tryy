@@ -771,7 +771,7 @@ Arctic = {
         ElementTransparency = 0.80,
 
         ToggleSlider = Color3.fromRGB(180, 20, 60),     -- off state rail
-        ToggleToggled = Color3.fromRGB(40, 0, 15),      -- toggled background
+        ToggleToggled = Color3.fromRGB(15, 25, 35),      -- toggled background
 
         SliderRail = Color3.fromRGB(50, 0, 15),         -- dark rail
 
@@ -1673,7 +1673,7 @@ function AcrylicPaint()
 
             -- SLH hexagon logo as centered background
             New("ImageLabel", {
-                Image = "rbxassetid://100445510581838",  -- ← Upload & paste real ID here
+                Image = "rbxassetid://112528576571248",  -- ← Upload & paste real ID here
                 ImageTransparency = 0.65,                       -- 0.5–0.8 for good visibility/blend
                 ImageColor3 = Color3.fromRGB(180, 20, 20),    -- Keep white (or red tint: 180,20,20)
                 ScaleType = Enum.ScaleType.Fit,                 -- Best for logos: fits without stretch
@@ -3939,7 +3939,7 @@ ElementsTable.Toggle = (function()
             AnchorPoint = Vector2.new(0, 0.5),
             Size = UDim2.fromOffset(18, 18),  -- Slightly larger for bolt visibility
             Position = UDim2.new(0, 2, 0.5, 0),
-            Image = "rbxassetid://3247112021",  -- Lightning Bolt decal (sharp electric look)
+            Image = "rbxassetid://115390529982428",  -- Lightning Bolt decal (sharp electric look)
             ImageTransparency = 0.5,
             ImageColor3 = Color3.fromRGB(100, 200, 255),  -- Base electric blue tint
             ScaleType = Enum.ScaleType.Fit,  -- Keeps bolt shape clean
