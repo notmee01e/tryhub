@@ -1655,7 +1655,7 @@ function AcrylicPaint()
         }, {
             -- Shadow/vignette (soft edges)
             New("ImageLabel", {
-                Image = "rbxassetid://6071579801",
+                Image = "rbxassetid://94644747314925",
                 ScaleType = Enum.ScaleType.Slice,
                 SliceCenter = Rect.new(49, 49, 450, 450),
                 AnchorPoint = Vector2.new(0.5, 0.5),
@@ -1674,7 +1674,7 @@ function AcrylicPaint()
             -- SLH hexagon logo as centered background
             New("ImageLabel", {
                 Image = "rbxassetid://112528576571248",  -- ← Upload & paste real ID here
-                ImageTransparency = 0.65,                       -- 0.5–0.8 for good visibility/blend
+                ImageTransparency = 0.5,                       -- 0.5–0.8 for good visibility/blend
                 ImageColor3 = Color3.fromRGB(180, 20, 20),    -- Keep white (or red tint: 180,20,20)
                 ScaleType = Enum.ScaleType.Fit,                 -- Best for logos: fits without stretch
                 Size = UDim2.fromScale(1.40, 1.40),               -- Adjust size: smaller for subtle, larger for bold
@@ -1695,7 +1695,7 @@ function AcrylicPaint()
                 ZIndex = 2,
             }, {
                 New("UICorner", {
-                    CornerRadius = UDim.new(0, 8),
+                    CornerRadius = UDim.new(1, 0),
                 }),
             }),
 
@@ -1747,7 +1747,7 @@ function AcrylicPaint()
                 Size = UDim2.fromScale(1, 1),
                 ZIndex = 5,
             }, {
-                New("UICorner", {CornerRadius = UDim.new(0, 8)}),
+                New("UICorner", {CornerRadius = UDim.new(1, 0)}),
                 New("UIStroke", {
                     Name = "GlowStroke",
                     Color = Color3.fromRGB(200, 0, 0),
@@ -1768,7 +1768,7 @@ function AcrylicPaint()
                 BackgroundTransparency = 1,
                 ZIndex = 6,
             }, {
-                New("UICorner", {CornerRadius = UDim.new(0, 8)}),
+                New("UICorner", {CornerRadius = UDim.new(1, 0)}),
             }),
 
             New("ImageLabel", {
@@ -3939,7 +3939,7 @@ ElementsTable.Toggle = (function()
             AnchorPoint = Vector2.new(0, 0.5),
             Size = UDim2.fromOffset(18, 18),  -- Slightly larger for bolt visibility
             Position = UDim2.new(0, 2, 0.5, 0),
-            Image = "rbxassetid://115390529982428",  -- Lightning Bolt decal (sharp electric look)
+            Image = "rbxassetid://130772003665076",  -- Lightning Bolt decal (sharp electric look)
             ImageTransparency = 0.5,
             ImageColor3 = Color3.fromRGB(100, 200, 255),  -- Base electric blue tint
             ScaleType = Enum.ScaleType.Fit,  -- Keeps bolt shape clean
