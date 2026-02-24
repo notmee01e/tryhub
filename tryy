@@ -1689,13 +1689,13 @@ function AcrylicPaint()
             -- Main acrylic tint (dark red-black base)
             New("Frame", {
                 BackgroundTransparency = 0.40,
-                Size = UDim2.fromScale(1, 1),
+                Size = UDim2.fromScale(1, 2),
                 Name = "Background",
                 BackgroundColor3 = Color3.fromRGB(20, 0, 0),
                 ZIndex = 2,
             }, {
                 New("UICorner", {
-                    CornerRadius = UDim.new(0, 9),
+                    CornerRadius = UDim.new(0, 10),
                 }),
             }),
 
@@ -1703,10 +1703,10 @@ function AcrylicPaint()
             New("Frame", {
                 BackgroundColor3 = Color3.fromRGB(255, 255, 255),
                 BackgroundTransparency = 0.70,
-                Size = UDim2.fromScale(1, 1),
+                Size = UDim2.fromScale(1, 2),
                 ZIndex = 3,
             }, {
-                New("UICorner", {CornerRadius = UDim.new(0, 9 )}),
+                New("UICorner", {CornerRadius = UDim.new(0, 10 )}),
                 New("UIGradient", {
                     Rotation = 90,
                     Color = ColorSequence.new{
@@ -1720,11 +1720,11 @@ function AcrylicPaint()
             New("Frame", {
                 Name = "PulseLayer",
                 BackgroundTransparency = 0.65,
-                Size = UDim2.fromScale(1, 1),
+                Size = UDim2.fromScale(1, 2),
                 BackgroundColor3 = Color3.fromRGB(255, 0, 0),
                 ZIndex = 4,
             }, {
-                New("UICorner", {CornerRadius = UDim.new(0, 9)}),
+                New("UICorner", {CornerRadius = UDim.new(0, 10)}),
                 New("UIGradient", {
                     Name = "PulseGradient",
                     Rotation = 45,
@@ -1744,10 +1744,10 @@ function AcrylicPaint()
             -- Pulsing border glow
             New("Frame", {
                 BackgroundTransparency = 1,
-                Size = UDim2.fromScale(1, 1),
+                Size = UDim2.fromScale(1, 2),
                 ZIndex = 5,
             }, {
-                New("UICorner", {CornerRadius = UDim.new(0, 9)}),
+                New("UICorner", {CornerRadius = UDim.new(0, 10)}),
                 New("UIStroke", {
                     Name = "GlowStroke",
                     Color = Color3.fromRGB(200, 0, 0),
@@ -3401,7 +3401,7 @@ Components.Window = (function()
 			TextSize = 28,
 			TextXAlignment = "Left",
 			TextYAlignment = "Center",
-			Size = UDim2.new(1, -16, 0, 28),
+			Position = UDim2.new(0.5, 0, 0.5, 0),
 			Position = UDim2.fromOffset(Window.TabWidth + 26, 56),
 			BackgroundTransparency = 1,
 			ThemeTag = {
