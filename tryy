@@ -771,7 +771,7 @@ Arctic = {
         ElementTransparency = 0.80,
 
         ToggleSlider = Color3.fromRGB(180, 20, 60),     -- off state rail
-        ToggleToggled = Color3.fromRGB(15, 25, 35),      -- toggled background
+        ToggleToggled = Color3.fromRGB(40, 0, 15),      -- toggled background
 
         SliderRail = Color3.fromRGB(50, 0, 15),         -- dark rail
 
@@ -1528,253 +1528,194 @@ local function createAcrylic()
 end
 
 function AcrylicBlur()
-    local function createAcrylicBlur(distance)
-        local cleanups = {}
-        distance = distance or 0.001
-        local positions = {
-            topLeft = Vector2.new(),
-            topRight = Vector2.new(),
-            bottomRight = Vector2.new(),
-        }
-        local model = createAcrylic()
-        model.Parent = BlurFolder
-        local function updatePositions(size, position)
-            positions.topLeft = position
-            positions.topRight = position + Vector2.new(size.X, 0)
-            positions.bottomRight = position + size
-        end
-        local function render()
-            local res = game:GetService("Workspace").CurrentCamera
-            if res then
-                res = res.CFrame
-            end
-            local cond = res
-            if not cond then
-                cond = CFrame.new()
-            end
-            local camera = cond
-            local topLeft = positions.topLeft
-            local topRight = positions.topRight
-            local bottomRight = positions.bottomRight
-            local topLeft3D = viewportPointToWorld(topLeft, distance)
-            local topRight3D = viewportPointToWorld(topRight, distance)
-            local bottomRight3D = viewportPointToWorld(bottomRight, distance)
-            local width = (topRight3D - topLeft3D).Magnitude
-            local height = (topRight3D - bottomRight3D).Magnitude
-            model.CFrame =
-                CFrame.fromMatrix((topLeft3D + bottomRight3D) / 2, camera.XVector, camera.YVector, camera.ZVector)
-            model.Mesh.Scale = Vector3.new(width, height, 0)
-        end
-        local function onChange(rbx)
-            local offset = getOffset()
-            local size = rbx.AbsoluteSize - Vector2.new(offset, offset)
-            local position = rbx.AbsolutePosition + Vector2.new(offset / 2, offset / 2)
-            updatePositions(size, position)
-            task.spawn(render)
-        end
-        local function renderOnChange()
-            local camera = game:GetService("Workspace").CurrentCamera
-            if not camera then
-                return
-            end
-            table.insert(cleanups, camera:GetPropertyChangedSignal("CFrame"):Connect(render))
-            table.insert(cleanups, camera:GetPropertyChangedSignal("ViewportSize"):Connect(render))
-            table.insert(cleanups, camera:GetPropertyChangedSignal("FieldOfView"):Connect(render))
-            task.spawn(render)
-        end
-        model.Destroying:Connect(function()
-            for _, item in cleanups do
-                pcall(function()
-                    item:Disconnect()
-                end)
-            end
-        end)
-        renderOnChange()
-        return onChange, model
-    end
-    return function(distance)
-        local Blur = {}
-        local onChange, model = createAcrylicBlur(distance)
-        local comp = Creator.New("Frame", {
-            BackgroundTransparency = 1,
-            Size = UDim2.fromScale(1, 1),
-        })
-        Creator.AddSignal(comp:GetPropertyChangedSignal("AbsolutePosition"), function()
-            onChange(comp)
-        end)
-        Creator.AddSignal(comp:GetPropertyChangedSignal("AbsoluteSize"), function()
-            onChange(comp)
-        end)
-        Blur.AddParent = function(Parent)
-            Creator.AddSignal(Parent:GetPropertyChangedSignal("Visible"), function()
-                Blur.SetVisibility(Parent.Visible)
-            end)
-        end
-        Blur.SetVisibility = function(Value)
-            model.Transparency = Value and 0.95 or 1
-        end
-        Blur.Frame = comp
-        Blur.Model = model
-        return Blur
-    end
-end
+	local function createAcrylicBlur(distance)
+		local cleanups = {}
 
-function AcrylicBlur()
-    local function createAcrylicBlur(distance)
-        local cleanups = {}
-        distance = distance or 0.001
-        local positions = {
-            topLeft = Vector2.new(),
-            topRight = Vector2.new(),
-            bottomRight = Vector2.new(),
-        }
-        local model = createAcrylic()
-        model.Parent = BlurFolder
-        local function updatePositions(size, position)
-            positions.topLeft = position
-            positions.topRight = position + Vector2.new(size.X, 0)
-            positions.bottomRight = position + size
-        end
-        local function render()
-            local res = game:GetService("Workspace").CurrentCamera
-            if res then
-                res = res.CFrame
-            end
-            local cond = res
-            if not cond then
-                cond = CFrame.new()
-            end
-            local camera = cond
-            local topLeft = positions.topLeft
-            local topRight = positions.topRight
-            local bottomRight = positions.bottomRight
-            local topLeft3D = viewportPointToWorld(topLeft, distance)
-            local topRight3D = viewportPointToWorld(topRight, distance)
-            local bottomRight3D = viewportPointToWorld(bottomRight, distance)
-            local width = (topRight3D - topLeft3D).Magnitude
-            local height = (topRight3D - bottomRight3D).Magnitude
-            model.CFrame =
-                CFrame.fromMatrix((topLeft3D + bottomRight3D) / 2, camera.XVector, camera.YVector, camera.ZVector)
-            model.Mesh.Scale = Vector3.new(width, height, 0)
-        end
-        local function onChange(rbx)
-            local offset = getOffset()
-            local size = rbx.AbsoluteSize - Vector2.new(offset, offset)
-            local position = rbx.AbsolutePosition + Vector2.new(offset / 2, offset / 2)
-            updatePositions(size, position)
-            task.spawn(render)
-        end
-        local function renderOnChange()
-            local camera = game:GetService("Workspace").CurrentCamera
-            if not camera then
-                return
-            end
-            table.insert(cleanups, camera:GetPropertyChangedSignal("CFrame"):Connect(render))
-            table.insert(cleanups, camera:GetPropertyChangedSignal("ViewportSize"):Connect(render))
-            table.insert(cleanups, camera:GetPropertyChangedSignal("FieldOfView"):Connect(render))
-            task.spawn(render)
-        end
-        model.Destroying:Connect(function()
-            for _, item in cleanups do
-                pcall(function()
-                    item:Disconnect()
-                end)
-            end
-        end)
-        renderOnChange()
-        return onChange, model
-    end
-    return function(distance)
-        local Blur = {}
-        local onChange, model = createAcrylicBlur(distance)
-        local comp = Creator.New("Frame", {
-            BackgroundTransparency = 1,
-            Size = UDim2.fromScale(1, 1),
-        })
-        Creator.AddSignal(comp:GetPropertyChangedSignal("AbsolutePosition"), function()
-            onChange(comp)
-        end)
-        Creator.AddSignal(comp:GetPropertyChangedSignal("AbsoluteSize"), function()
-            onChange(comp)
-        end)
-        Blur.AddParent = function(Parent)
-            Creator.AddSignal(Parent:GetPropertyChangedSignal("Visible"), function()
-                Blur.SetVisibility(Parent.Visible)
-            end)
-        end
-        Blur.SetVisibility = function(Value)
-            model.Transparency = Value and 0.95 or 1
-        end
-        Blur.Frame = comp
-        Blur.Model = model
-        return Blur
-    end
-end
+		distance = distance or 0.001
+		local positions = {
+			topLeft = Vector2.new(),
+			topRight = Vector2.new(),
+			bottomRight = Vector2.new(),
+		}
+		local model = createAcrylic()
+		model.Parent = BlurFolder
 
+		local function updatePositions(size, position)
+			positions.topLeft = position
+			positions.topRight = position + Vector2.new(size.X, 0)
+			positions.bottomRight = position + size
+		end
+
+		local function render()
+			local res = game:GetService("Workspace").CurrentCamera
+			if res then
+				res = res.CFrame
+			end
+			local cond = res
+			if not cond then
+				cond = CFrame.new()
+			end
+
+			local camera = cond
+			local topLeft = positions.topLeft
+			local topRight = positions.topRight
+			local bottomRight = positions.bottomRight
+
+			local topLeft3D = viewportPointToWorld(topLeft, distance)
+			local topRight3D = viewportPointToWorld(topRight, distance)
+			local bottomRight3D = viewportPointToWorld(bottomRight, distance)
+
+			local width = (topRight3D - topLeft3D).Magnitude
+			local height = (topRight3D - bottomRight3D).Magnitude
+
+			model.CFrame =
+				CFrame.fromMatrix((topLeft3D + bottomRight3D) / 2, camera.XVector, camera.YVector, camera.ZVector)
+			model.Mesh.Scale = Vector3.new(width, height, 0)
+		end
+
+		local function onChange(rbx)
+			local offset = getOffset()
+			local size = rbx.AbsoluteSize - Vector2.new(offset, offset)
+			local position = rbx.AbsolutePosition + Vector2.new(offset / 2, offset / 2)
+
+			updatePositions(size, position)
+			task.spawn(render)
+		end
+
+		local function renderOnChange()
+			local camera = game:GetService("Workspace").CurrentCamera
+			if not camera then
+				return
+			end
+
+			table.insert(cleanups, camera:GetPropertyChangedSignal("CFrame"):Connect(render))
+			table.insert(cleanups, camera:GetPropertyChangedSignal("ViewportSize"):Connect(render))
+			table.insert(cleanups, camera:GetPropertyChangedSignal("FieldOfView"):Connect(render))
+			task.spawn(render)
+		end
+
+		model.Destroying:Connect(function()
+			for _, item in cleanups do
+				pcall(function()
+					item:Disconnect()
+				end)
+			end
+		end)
+
+		renderOnChange()
+
+		return onChange, model
+	end
+
+	return function(distance)
+		local Blur = {}
+		local onChange, model = createAcrylicBlur(distance)
+
+		local comp = Creator.New("Frame", {
+			BackgroundTransparency = 1,
+			Size = UDim2.fromScale(1, 1),
+		})
+
+		Creator.AddSignal(comp:GetPropertyChangedSignal("AbsolutePosition"), function()
+			onChange(comp)
+		end)
+
+		Creator.AddSignal(comp:GetPropertyChangedSignal("AbsoluteSize"), function()
+			onChange(comp)
+		end)
+
+		Blur.AddParent = function(Parent)
+			Creator.AddSignal(Parent:GetPropertyChangedSignal("Visible"), function()
+				Blur.SetVisibility(Parent.Visible)
+			end)
+		end
+
+		Blur.SetVisibility = function(Value)
+			model.Transparency = Value and 0.95 or 1
+		end
+
+		Blur.Frame = comp
+		Blur.Model = model
+
+		return Blur
+	end
+end
 function AcrylicPaint()
     local New = Creator.New
-    local AcrylicBlur = AcrylicBlur()
+    local AcrylicBlur = AcrylicBlur()  -- assuming this is defined elsewhere
     local TweenService = game:GetService("TweenService")
 
     return function(props)
         local AcrylicPaint = {}
+
+        -- Main frame
         AcrylicPaint.Frame = New("Frame", {
-            Size = UDim2.fromScale(1, 1),
+            Size               = UDim2.fromScale(1, 1),
             BackgroundTransparency = 0.75,
-            BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-            BorderSizePixel = 0,
-            ClipsDescendants = true,
-        }, {
-            -- Shadow/vignette (soft edges)
+            BackgroundColor3   = Color3.fromRGB(255, 255, 255),
+            BorderSizePixel    = 0,
+            ClipsDescendants   = true,
+        })
+
+        -- Add all children with proper .Name so we can reference them later
+        local children = {
+            -- Vignette / shadow
             New("ImageLabel", {
-                Image = "rbxassetid://8740725",
-                ScaleType = Enum.ScaleType.Slice,
-                SliceCenter = Rect.new(49, 49, 450, 450),
-                AnchorPoint = Vector2.new(0.5, 0.5),
-                Size = UDim2.new(1, 40, 1, 40),
-                Position = UDim2.new(0.5, 0, 0.5, 0),
+                Name               = "Vignette",
+                Image              = "rbxassetid://6071579801",
+                ScaleType          = Enum.ScaleType.Slice,
+                SliceCenter        = Rect.new(49, 49, 450, 450),
+                AnchorPoint        = Vector2.new(0.5, 0.5),
+                Size               = UDim2.new(1, 40, 1, 40),
+                Position           = UDim2.new(0.5, 0, 0.5, 0),
                 BackgroundTransparency = 1,
-                ImageColor3 = Color3.fromRGB(50, 0, 0),
-                ImageTransparency = 0.60,
-                ZIndex = 0,
+                ImageColor3        = Color3.fromRGB(50, 0, 0),
+                ImageTransparency  = 0.60,
+                ZIndex             = 0,
             }),
+
+            -- Corner rounding
             New("UICorner", {
-                CornerRadius = UDim.new(0, 8),
+                Name               = "Corner",
+                CornerRadius       = UDim.new(0, 8),
             }),
-            -- SLH hexagon logo as centered background
+
+            -- SLH hexagon logo (centered background)
             New("ImageLabel", {
-                Image = "rbxassetid://112528576571248", -- ← Upload & paste real ID here
-                ImageTransparency = 0.5,
-                ImageColor3 = Color3.fromRGB(180, 20, 20),
-                ScaleType = Enum.ScaleType.Fit,
-                Size = UDim2.fromScale(1.40, 1.40),
-                AnchorPoint = Vector2.new(0.5, 0.5),
-                Position = UDim2.fromScale(0.5, 0.5),
-                BackgroundTransparency = 10,
-                ZIndex = 1,
+                Name               = "Logo",
+                Image              = "rbxassetid://100445510581838",
+                ImageTransparency  = 0.65,
+                ImageColor3        = Color3.fromRGB(180, 20, 20),
+                ScaleType          = Enum.ScaleType.Fit,
+                Size               = UDim2.fromScale(1.40, 1.40),
+                AnchorPoint        = Vector2.new(0.5, 0.5),
+                Position           = UDim2.fromScale(0.5, 0.5),
+                BackgroundTransparency = 1,
+                ZIndex             = 1,
             }, {
-                New("UICorner", {CornerRadius = UDim.new(0, 8)}),
+                New("UICorner", { CornerRadius = UDim.new(0, 8) }),
             }),
-            -- Main acrylic tint (dark red-black base)
+
+            -- Dark red-black acrylic base
             New("Frame", {
+                Name               = "AcrylicBase",
                 BackgroundTransparency = 0.40,
-                Size = UDim2.fromScale(1, 2),
-                Name = "Background",
-                BackgroundColor3 = Color3.fromRGB(20, 0, 0),
-                ZIndex = 2,
+                Size               = UDim2.fromScale(1, 1),
+                BackgroundColor3   = Color3.fromRGB(20, 0, 0),
+                ZIndex             = 2,
             }, {
-                New("UICorner", {
-                    CornerRadius = UDim.new(0, 10),
-                }),
+                New("UICorner", { CornerRadius = UDim.new(0, 8) }),
             }),
+
             -- Light gradient overlay
             New("Frame", {
-                BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+                Name               = "GradientOverlay",
+                BackgroundColor3   = Color3.fromRGB(255, 255, 255),
                 BackgroundTransparency = 0.70,
-                Size = UDim2.fromScale(1, 2),
-                ZIndex = 3,
+                Size               = UDim2.fromScale(1, 1),
+                ZIndex             = 3,
             }, {
-                New("UICorner", {CornerRadius = UDim.new(0, 10)}),
+                New("UICorner", { CornerRadius = UDim.new(0, 8) }),
                 New("UIGradient", {
                     Rotation = 90,
                     Color = ColorSequence.new{
@@ -1783,22 +1724,23 @@ function AcrylicPaint()
                     },
                 }),
             }),
-            -- Pulsing red-black gradient layer
+
+            -- Pulsing layer (named so we can find it)
             New("Frame", {
-                Name = "PulseLayer",
+                Name               = "PulseLayer",
                 BackgroundTransparency = 0.65,
-                Size = UDim2.fromScale(1, 2),
-                BackgroundColor3 = Color3.fromRGB(255, 0, 0),
-                ZIndex = 4,
+                Size               = UDim2.fromScale(1, 1),
+                BackgroundColor3   = Color3.fromRGB(255, 0, 0),
+                ZIndex             = 4,
             }, {
-                New("UICorner", {CornerRadius = UDim.new(0, 10)}),
+                New("UICorner", { CornerRadius = UDim.new(0, 8) }),
                 New("UIGradient", {
                     Name = "PulseGradient",
                     Rotation = 45,
                     Color = ColorSequence.new{
-                        ColorSequenceKeypoint.new(0, Color3.fromRGB(150, 0, 0)),
+                        ColorSequenceKeypoint.new(0,   Color3.fromRGB(150, 0, 0)),
                         ColorSequenceKeypoint.new(0.5, Color3.fromRGB(50, 0, 0)),
-                        ColorSequenceKeypoint.new(1, Color3.fromRGB(10, 0, 0))
+                        ColorSequenceKeypoint.new(1,   Color3.fromRGB(10, 0, 0))
                     },
                     Transparency = NumberSequence.new{
                         NumberSequenceKeypoint.new(0, 0.4),
@@ -1807,206 +1749,136 @@ function AcrylicPaint()
                     Offset = Vector2.new(0, 0)
                 }),
             }),
+
             -- Pulsing border glow
             New("Frame", {
+                Name               = "GlowContainer",
                 BackgroundTransparency = 1,
-                Size = UDim2.fromScale(1, 2),
-                ZIndex = 5,
+                Size               = UDim2.fromScale(1, 1),
+                ZIndex             = 5,
             }, {
-                New("UICorner", {CornerRadius = UDim.new(0, 10)}),
+                New("UICorner", { CornerRadius = UDim.new(0, 8) }),
                 New("UIStroke", {
-                    Name = "GlowStroke",
-                    Color = Color3.fromRGB(200, 0, 0),
-                    Transparency = 0.4,
-                    Thickness = 2,
-                    ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+                    Name               = "GlowStroke",
+                    Color              = Color3.fromRGB(200, 0, 0),
+                    Transparency       = 0.4,
+                    Thickness          = 2,
+                    ApplyStrokeMode    = Enum.ApplyStrokeMode.Border,
                 }),
             }),
+
             -- Noise layers
             New("ImageLabel", {
-                Image = "rbxassetid://9968344227",
-                ImageTransparency = 0.92,
-                ScaleType = Enum.ScaleType.Tile,
-                TileSize = UDim2.new(0, 128, 0, 128),
-                Size = UDim2.fromScale(1, 1),
-                Position = UDim2.fromScale(0, 0),
+                Name               = "Noise1",
+                Image              = "rbxassetid://9968344227",
+                ImageTransparency  = 0.92,
+                ScaleType          = Enum.ScaleType.Tile,
+                TileSize           = UDim2.new(0, 128, 0, 128),
+                Size               = UDim2.fromScale(1, 1),
+                Position           = UDim2.fromScale(0, 0),
                 BackgroundTransparency = 1,
-                ZIndex = 6,
+                ZIndex             = 6,
             }, {
-                New("UICorner", {CornerRadius = UDim.new(0, 9)}),
+                New("UICorner", { CornerRadius = UDim.new(0, 8) }),
             }),
+
             New("ImageLabel", {
-                Image = "rbxassetid://9968344227",
-                ImageTransparency = 0.92,
-                ScaleType = Enum.ScaleType.Tile,
-                TileSize = UDim2.new(0, 128, 0, 128),
-                Size = UDim2.fromScale(1, 1),
-                Position = UDim2.fromScale(0, 0),
+                Name               = "Noise2",
+                Image              = "rbxassetid://9968344227",
+                ImageTransparency  = 0.92,
+                ScaleType          = Enum.ScaleType.Tile,
+                TileSize           = UDim2.new(0, 128, 0, 128),
+                Size               = UDim2.fromScale(1, 1),
+                Position           = UDim2.fromScale(0, 0),
                 BackgroundTransparency = 1,
-                ThemeTag = {ImageTransparency = "AcrylicNoise"},
-                ZIndex = 7,
+                ThemeTag           = { ImageTransparency = "AcrylicNoise" },
+                ZIndex             = 7,
             }, {
-                New("UICorner", {CornerRadius = UDim.new(0, 9)}),
+                New("UICorner", { CornerRadius = UDim.new(0, 8) }),
             }),
-
-            -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-            --     NEW: Animated colored lines per corner
-            -- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        })
-
-        -- Corner line setup (added outside the children table because we need references)
-        local cornerLineColors = {
-            {Color3.fromRGB(255,  80,  80), Color3.fromRGB(220,  40, 220), Color3.fromRGB(180, 180, 255)},  -- top-left     red-purple
-            {Color3.fromRGB(220,  40, 220), Color3.fromRGB( 80, 220, 255), Color3.fromRGB(100, 255, 220)}, -- top-right    purple-cyan
-            {Color3.fromRGB( 80, 220, 255), Color3.fromRGB(255, 180,  80), Color3.fromRGB(255, 100, 100)}, -- bottom-right cyan-orange-red
-            {Color3.fromRGB(255, 180,  80), Color3.fromRGB(255,  80,  80), Color3.fromRGB(220,  40, 220)}, -- bottom-left  orange-red-purple
         }
 
-        local lineThickness = 2.5
-        local lineLengthFactor = 0.38   -- portion of side covered by the line
-
-        for corner = 1, 4 do
-            local lineFrame = New("Frame", {
-                Name = "CornerLineFrame" .. corner,
-                BackgroundTransparency = 1,
-                Size = UDim2.fromScale(1, 1),
-                ZIndex = 8 + corner,
-                Parent = AcrylicPaint.Frame,
-            })
-
-            local stroke = New("UIStroke", {
-                Name = "AnimatedCornerLine",
-                ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-                Color = cornerLineColors[corner][1],
-                Thickness = lineThickness,
-                Transparency = 0.35,
-                Parent = lineFrame,
-            })
-
-            local gradient = New("UIGradient", {
-                Color = ColorSequence.new{
-                    ColorSequenceKeypoint.new(0.00, cornerLineColors[corner][1]),
-                    ColorSequenceKeypoint.new(0.50, cornerLineColors[corner][2]),
-                    ColorSequenceKeypoint.new(1.00, cornerLineColors[corner][3]),
-                },
-                Rotation = (corner - 1) * 90,
-                Transparency = NumberSequence.new{
-                    NumberSequenceKeypoint.new(0.00, 0.15),
-                    NumberSequenceKeypoint.new(0.40, 0.85),
-                    NumberSequenceKeypoint.new(0.60, 0.85),
-                    NumberSequenceKeypoint.new(1.00, 0.15),
-                },
-                Offset = Vector2.new(0, 0),
-                Parent = stroke,
-            })
-
-            -- Flowing animation + breathing pulse
-            local flowInfo = TweenInfo.new(
-                7.5 + corner * 1.9,           -- different speed per corner
-                Enum.EasingStyle.Sine,
-                Enum.EasingDirection.InOut,
-                -1,
-                true
-            )
-
-            local pulseInfo = TweenInfo.new(5 + corner * 1.4, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut, -1, true)
-
-            task.spawn(function()
-                TweenService:Create(gradient, flowInfo, {
-                    Offset = Vector2.new(0.65, 0),
-                    Rotation = (corner - 1) * 90 + 180,
-                }):Play()
-
-                while lineFrame.Parent do
-                    TweenService:Create(stroke, pulseInfo, {
-                        Thickness = lineThickness + 1.4,
-                        Transparency = 0.18,
-                    }):Play()
-                    task.wait(5 + corner * 1.4)
-
-                    TweenService:Create(stroke, pulseInfo, {
-                        Thickness = lineThickness,
-                        Transparency = 0.48,
-                    }):Play()
-                    task.wait(5 + corner * 1.4)
-                end
-            end)
+        -- Parent all children to the main frame
+        for _, child in ipairs(children) do
+            child.Parent = AcrylicPaint.Frame
         end
 
-        -- Pulse animation (original)
-        local pulseTweenInfo = TweenInfo.new(2.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
-        local pulseGradient = AcrylicPaint.Frame.PulseLayer.PulseGradient
-        TweenService:Create(pulseGradient, pulseTweenInfo, {
-            Offset = Vector2.new(0.3, 0.3),
-        }):Play()
-
-        local glowStroke = AcrylicPaint.Frame:FindFirstChild("GlowStroke", true)
-        if glowStroke then
-            TweenService:Create(glowStroke, pulseTweenInfo, {
-                Transparency = 0.5,
-                Thickness = 3,
+        -- Pulse animation (safe check)
+        local pulseGradient = AcrylicPaint.Frame:FindFirstChild("PulseLayer", true)
+                               and AcrylicPaint.Frame.PulseLayer:FindFirstChild("PulseGradient")
+        if pulseGradient then
+            local pulseTweenInfo = TweenInfo.new(2.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
+            TweenService:Create(pulseGradient, pulseTweenInfo, {
+                Offset = Vector2.new(0.3, 0.3),
             }):Play()
         end
 
-        -- Thunder/red flash effect (original)
-        local flashInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-        local flashBackInfo = TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.In)
+        -- Glow stroke pulse
+        local glowStroke = AcrylicPaint.Frame:FindFirstChild("GlowContainer", true)
+                           and AcrylicPaint.Frame.GlowContainer:FindFirstChild("GlowStroke")
+        if glowStroke then
+            local pulseTweenInfo = TweenInfo.new(2.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
+            TweenService:Create(glowStroke, pulseTweenInfo, {
+                Transparency = 0.3,
+                Thickness    = 3,
+            }):Play()
+        end
+
+        -- Thunder/red flash effect (with pcall safety)
         spawn(function()
             while true do
-                wait(math.random(4, 12))
-                if glowStroke then
-                    TweenService:Create(glowStroke, flashInfo, {
-                        Transparency = 0.05,
-                        Thickness = 4.5,
-                        Color = Color3.fromRGB(255, 80, 80)
-                    }):Play()
-                end
-                local pulseFrame = AcrylicPaint.Frame.PulseLayer
-                local origTrans = pulseFrame.BackgroundTransparency
-                TweenService:Create(pulseFrame, flashInfo, {
-                    BackgroundTransparency = 0.25
-                }):Play()
-                wait(0.5)
-                if glowStroke then
-                    TweenService:Create(glowStroke, flashBackInfo, {
-                        Transparency = 0.3,
-                        Thickness = 2,
-                        Color = Color3.fromRGB(200, 0, 0)
-                    }):Play()
-                end
-                TweenService:Create(pulseFrame, flashBackInfo, {
-                    BackgroundTransparency = origTrans
-                }):Play()
+                task.wait(math.random(4, 12))
+                
+                pcall(function()
+                    if glowStroke then
+                        TweenService:Create(glowStroke, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                            Transparency = 0.05,
+                            Thickness    = 4.5,
+                            Color        = Color3.fromRGB(255, 80, 80)
+                        }):Play()
+                    end
+
+                    local pulseFrame = AcrylicPaint.Frame:FindFirstChild("PulseLayer", true)
+                    if pulseFrame then
+                        local origTrans = pulseFrame.BackgroundTransparency
+                        TweenService:Create(pulseFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                            BackgroundTransparency = 0.25
+                        }):Play()
+                        
+                        task.wait(0.5)
+                        
+                        if glowStroke then
+                            TweenService:Create(glowStroke, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.In), {
+                                Transparency = 0.3,
+                                Thickness    = 2,
+                                Color        = Color3.fromRGB(200, 0, 0)
+                            }):Play()
+                        end
+                        
+                        TweenService:Create(pulseFrame, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.In), {
+                            BackgroundTransparency = origTrans
+                        }):Play()
+                    end
+                end)
             end
         end)
 
+        -- Acrylic blur support (if enabled)
         local Blur
         if Library.UseAcrylic then
             Blur = AcrylicBlur()
-            Blur.Frame.Parent = AcrylicPaint.Frame
-            AcrylicPaint.Model = Blur.Model
-            AcrylicPaint.AddParent = Blur.AddParent
-            AcrylicPaint.SetVisibility = Blur.SetVisibility
-            if Blur.SetVisibility then Blur.SetVisibility(true) end
+            if Blur and Blur.Frame then
+                Blur.Frame.Parent = AcrylicPaint.Frame
+                AcrylicPaint.Model       = Blur.Model
+                AcrylicPaint.AddParent   = Blur.AddParent
+                AcrylicPaint.SetVisibility = Blur.SetVisibility
+                if Blur.SetVisibility then
+                    pcall(Blur.SetVisibility, true)
+                end
+            end
         end
 
         return AcrylicPaint
-    end
-end
-
-local Acrylic = {
-    AcrylicBlur = AcrylicBlur(),
-    CreateAcrylic = createAcrylic,
-    AcrylicPaint = AcrylicPaint(),
-}
-
-function Acrylic.init()
-    local depthOfFieldDefaults = {}
-    function Acrylic.Enable()
-        -- 1
-    end
-    function Acrylic.Disable()
-        -- 2
     end
 end
 
@@ -3557,23 +3429,21 @@ Components.Window = (function()
 		})
 
 		Window.TabDisplay = New("TextLabel", {
-            RichText = true,
-            Text = "SLH",
-            TextTransparency = 0,
-            FontFace = Font.new("rbxassetid://12187371840", Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),
-            TextSize = 28,
-    
-            TextXAlignment = Enum.TextXAlignment.Center,
-            TextYAlignment = Enum.TextYAlignment.Center,
-    
-            AnchorPoint = Vector2.new(0.5, 0),
-            Position = UDim2.new(0.5, 0, 0, 56),           -- gitna horizontally, 56px pababa
-    
-            BackgroundTransparency = 1,
-            ThemeTag = {
-                TextColor3 = "Text",
-            },
-        })
+			RichText = true,
+			Text = "SLH",
+			TextTransparency = 0,
+			FontFace = Font.new("rbxassetid://12187371840", Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),
+			TextSize = 28,
+			TextXAlignment = "Left",
+			TextYAlignment = "Center",
+			Size = UDim2.new(1, -16, 0, 28),
+			Position = UDim2.fromOffset(Window.TabWidth + 26, 56),
+			BackgroundTransparency = 1,
+			ThemeTag = {
+				TextColor3 = "Text",
+			},
+		})
+
 		Window.ContainerHolder = New("Frame", {
 			Size = UDim2.fromScale(1, 1),
 			BackgroundTransparency = 1,
@@ -4076,153 +3946,107 @@ ElementsTable.Button = (function()
 
 	return Element
 end)()
-
 ElementsTable.Toggle = (function()
-    local Element = {}
-    Element.__index = Element
-    Element.__type = "Toggle"
+	local Element = {}
+	Element.__index = Element
+	Element.__type = "Toggle"
 
-    function Element:New(Idx, Config)
-        assert(Config.Title, "Toggle - Missing Title")
+	function Element:New(Idx, Config)
+		assert(Config.Title, "Toggle - Missing Title")
 
-        local Toggle = {
-            Value = Config.Default or false,
-            Callback = Config.Callback or function(Value) end,
-            Type = "Toggle",
-        }
+		local Toggle = {
+			Value = Config.Default or false,
+			Callback = Config.Callback or function(Value) end,
+			Type = "Toggle",
+		}
 
-        local ToggleFrame = Components.Element(Config.Title, Config.Description, self.Container, true, Config)
-        ToggleFrame.DescLabel.Size = UDim2.new(1, -54, 0, 14)
+		local ToggleFrame = Components.Element(Config.Title, Config.Description, self.Container, true, Config)
+		ToggleFrame.DescLabel.Size = UDim2.new(1, -54, 0, 14)
 
-        Toggle.SetTitle = ToggleFrame.SetTitle
-        Toggle.SetDesc = ToggleFrame.SetDesc
-        Toggle.Visible = ToggleFrame.Visible
-        Toggle.Elements = ToggleFrame
+		Toggle.SetTitle = ToggleFrame.SetTitle
+		Toggle.SetDesc = ToggleFrame.SetDesc
+		Toggle.Visible = ToggleFrame.Visible
+		Toggle.Elements = ToggleFrame
 
-        -- Thunder bolt image (glowing blue lightning icon) - cool toggle "knob"
-        local ToggleCircle = New("ImageLabel", {
-            AnchorPoint = Vector2.new(0, 0.5),
-            Size = UDim2.fromOffset(18, 18),  -- Slightly larger for bolt visibility
-            Position = UDim2.new(0, 2, 0.5, 0),
-            Image = "rbxassetid://130772003665076",  -- Lightning Bolt decal (sharp electric look)
-            ImageTransparency = 0.5,
-            ImageColor3 = Color3.fromRGB(100, 200, 255),  -- Base electric blue tint
-            ScaleType = Enum.ScaleType.Fit,  -- Keeps bolt shape clean
-            BackgroundTransparency = 1,
-        })
+		local ToggleCircle = New("ImageLabel", {
+			AnchorPoint = Vector2.new(0, 0.5),
+			Size = UDim2.fromOffset(14, 14),
+			Position = UDim2.new(0, 2, 0.5, 0),
+			Image = "http://www.roblox.com/asset/?id=138751689889190",
+			ImageTransparency = 0.5,
+			ThemeTag = {
+				ImageColor3 = "ToggleSlider",
+			},
+		})
 
-        -- Electric blue thunder glow stroke (pulses/flashes on toggle)
-        local ThunderStroke = New("UIStroke", {
-            Transparency = 1,  -- Start hidden
-            Thickness = 2,
-            Color = Color3.fromRGB(0, 180, 255),  -- Bright thunder blue
-            ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-            Parent = ToggleCircle,
-        })
+		local ToggleBorder = New("UIStroke", {
+			Transparency = 0.5,
+			ThemeTag = {
+				Color = "ToggleSlider",
+			},
+		})
 
-        local ToggleBorder = New("UIStroke", {
-            Transparency = 0.5,
-            ThemeTag = {
-                Color = "ToggleSlider",
-            },
-        })
+		local ToggleSlider = New("Frame", {
+			Size = UDim2.fromOffset(36, 18),
+			AnchorPoint = Vector2.new(1, 0.5),
+			Position = UDim2.new(1, -10, 0.5, 0),
+			Parent = ToggleFrame.Frame,
+			BackgroundTransparency = 1,
+			ThemeTag = {
+				BackgroundColor3 = "Accent",
+			},
+		}, {
+			New("UICorner", {
+				CornerRadius = UDim.new(0, 9),
+			}),
+			ToggleBorder,
+			ToggleCircle,
+		})
 
-        local ToggleSlider = New("Frame", {
-            Size = UDim2.fromOffset(36, 18),
-            AnchorPoint = Vector2.new(1, 0.5),
-            Position = UDim2.new(1, -10, 0.5, 0),
-            Parent = ToggleFrame.Frame,
-            BackgroundTransparency = 1,
-            ThemeTag = {
-                BackgroundColor3 = "Accent",
-            },
-        }, {
-            New("UICorner", {
-                CornerRadius = UDim.new(0, 9),
-            }),
-            ToggleBorder,
-            ToggleCircle,
-        })
+		function Toggle:OnChanged(Func)
+			Toggle.Changed = Func
+			Func(Toggle.Value)
+		end
 
-        function Toggle:OnChanged(Func)
-            Toggle.Changed = Func
-            Func(Toggle.Value)
-        end
+		function Toggle:SetValue(Value)
+			Value = not not Value
+			Toggle.Value = Value
 
-        function Toggle:SetValue(Value)
-            Value = not not Value
-            Toggle.Value = Value
+			Creator.OverrideTag(ToggleBorder, { Color = Toggle.Value and "Accent" or "ToggleSlider" })
+			Creator.OverrideTag(ToggleCircle, { ImageColor3 = Toggle.Value and "ToggleToggled" or "ToggleSlider" })
+			TweenService:Create(
+				ToggleCircle,
+				TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+				{ Position = UDim2.new(0, Toggle.Value and 19 or 2, 0.5, 0) }
+			):Play()
+			TweenService:Create(
+				ToggleSlider,
+				TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
+				{ BackgroundTransparency = Toggle.Value and 0.45 or 1 }
+			):Play()
+			ToggleCircle.ImageTransparency = Toggle.Value and 0 or 0.5
 
-            Creator.OverrideTag(ToggleBorder, { Color = Toggle.Value and "Accent" or "ToggleSlider" })
-            -- No OverrideTag for circle since we're handling color manually for thunder effect
-            ToggleCircle.ImageColor3 = Toggle.Value and Color3.fromRGB(80, 220, 255) or Color3.fromRGB(140, 140, 160)  -- Bright blue ON / dim gray OFF
+			Library:SafeCallback(Toggle.Callback, Toggle.Value)
+			Library:SafeCallback(Toggle.Changed, Toggle.Value)
+		end
 
-            -- Slide + slight scale pop for "spark" feel
-            TweenService:Create(
-                ToggleCircle,
-                TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
-                { 
-                    Position = UDim2.new(0, Toggle.Value and 19 or 2, 0.5, 0),
-                    Size = UDim2.fromOffset(Toggle.Value and 20 or 18, Toggle.Value and 20 or 18)  -- Pop when ON
-                }
-            ):Play()
+		function Toggle:Destroy()
+			ToggleFrame:Destroy()
+			Library.Options[Idx] = nil
+		end
 
-            TweenService:Create(
-                ToggleSlider,
-                TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out),
-                { BackgroundTransparency = Toggle.Value and 0.45 or 1 }
-            ):Play()
+		Creator.AddSignal(ToggleFrame.Frame.MouseButton1Click, function()
+			Toggle:SetValue(not Toggle.Value)
+		end)
 
-            -- Thunder blue flash + pulse animation
-            if Toggle.Value then
-                -- ON: Quick lightning strike flash + pulse glow
-                ThunderStroke.Transparency = 0.4
-                TweenService:Create(ThunderStroke, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-                    Transparency = 0.1,
-                    Thickness = 4
-                }):Play()
-                
-                task.delay(0.12, function()
-                    TweenService:Create(ThunderStroke, TweenInfo.new(0.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, 1, true), {
-                        Thickness = 2.5,
-                        Transparency = 0.45
-                    }):Play()
-                end)
-                
-                ToggleCircle.ImageTransparency = 0  -- Full bright bolt
-            else
-                -- OFF: Smooth fade out
-                TweenService:Create(ThunderStroke, TweenInfo.new(0.35, Enum.EasingStyle.Sine), {
-                    Transparency = 1,
-                    Thickness = 2
-                }):Play()
-                
-                ToggleCircle.ImageTransparency = 0.5
-            end
+		Toggle:SetValue(Toggle.Value)
 
-            Library:SafeCallback(Toggle.Callback, Toggle.Value)
-            Library:SafeCallback(Toggle.Changed, Toggle.Value)
-        end
+		Library.Options[Idx] = Toggle
+		return Toggle
+	end
 
-        function Toggle:Destroy()
-            ToggleFrame:Destroy()
-            Library.Options[Idx] = nil
-        end
-
-        Creator.AddSignal(ToggleFrame.Frame.MouseButton1Click, function()
-            Toggle:SetValue(not Toggle.Value)
-        end)
-
-        Toggle:SetValue(Toggle.Value)
-
-        Library.Options[Idx] = Toggle
-        return Toggle
-    end
-
-    return Element
+	return Element
 end)()
-
-
 ElementsTable.Dropdown = (function()
 	local Element = {}
 	Element.__index = Element
