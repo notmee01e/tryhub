@@ -1,10 +1,10 @@
--- Fluent Lite - Full Library with Tabs, Button, Toggle, Dropdown (screenshot style), Draggable + Minimizer
+-- Fluent Lite - Full Working Version with Tabs + All Elements
+-- Correct method names: :Toggle, :Dropdown, :Button (NO "Add" prefix)
 
 local Library = {
     Theme   = "Dark",
     GUI     = Instance.new("ScreenGui", game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")),
     Windows = {},
-    OpenDropdowns = {},
     Options = {},
 }
 
@@ -229,7 +229,7 @@ local function CreateWindow(cfg)
         Library.GUI:Destroy()
     end)
 
-    -- Tab bar (left side)
+    -- Tab bar (left)
     local tabBar = New("Frame", {
         Size = UDim2.new(0, 140, 1, -44),
         Position = UDim2.fromOffset(12, 40),
@@ -239,7 +239,7 @@ local function CreateWindow(cfg)
         New("UIListLayout", {Padding = UDim.new(0,6), SortOrder = Enum.SortOrder.LayoutOrder}),
     })
 
-    -- Content area (right side)
+    -- Content area (right)
     local contentArea = New("Frame", {
         Size = UDim2.new(1, -164, 1, -50),
         Position = UDim2.fromOffset(152, 44),
@@ -264,7 +264,6 @@ local function CreateWindow(cfg)
             }),
         }
 
-        -- Tab button
         local tabBtn = New("TextButton", {
             Size = UDim2.new(1,0,0,34),
             BackgroundTransparency = 0.9,
@@ -277,7 +276,6 @@ local function CreateWindow(cfg)
             New("UICorner", {CornerRadius = UDim.new(0,6)}),
         })
 
-        -- Tab switching
         tabBtn.MouseButton1Click:Connect(function()
             for _, other in ipairs(win.Tabs) do
                 other.Content.Visible = false
@@ -289,32 +287,36 @@ local function CreateWindow(cfg)
 
         table.insert(win.Tabs, tab)
 
-        -- Auto-activate first tab
         if #win.Tabs == 1 then
             tabBtn.BackgroundTransparency = 0.75
             tab.Content.Visible = true
             win.CurrentTab = tab
         end
 
-        -- Return tab API
-        return {
-            Toggle = function(_, cfg)
-                local toggle = ElementsTable.Toggle:New(#Library.Options + 1, cfg)
-                toggle.Frame.Parent = tab.Content
-                return toggle
-            end,
-            Dropdown = function(_, cfg)
-                local dd = ElementsTable.Dropdown:New(#Library.Options + 1, cfg)
-                dd.Frame.Parent = tab.Content
-                return dd
-            end,
-            Button = function(_, cfg)
-                local btn = ElementsTable.Button:New(cfg)
-                btn.Frame.Parent = tab.Content
-                return btn
-            end,
-            -- Add more elements here in the same way
-        }
+        return setmetatable({}, {
+            __index = function(_, k)
+                if k == "Toggle" then
+                    return function(_, cfg)
+                        local toggle = ElementsTable.Toggle:New(#Library.Options + 1, cfg)
+                        toggle.Frame.Parent = tab.Content
+                        return toggle
+                    end
+                elseif k == "Dropdown" then
+                    return function(_, cfg)
+                        local dd = ElementsTable.Dropdown:New(#Library.Options + 1, cfg)
+                        dd.Frame.Parent = tab.Content
+                        return dd
+                    end
+                elseif k == "Button" then
+                    return function(_, cfg)
+                        local btn = ElementsTable.Button:New(cfg)
+                        btn.Frame.Parent = tab.Content
+                        return btn
+                    end
+                end
+                -- Add more elements here later
+            end
+        })
     end
 
     return win
@@ -371,7 +373,6 @@ function Library:CreateMinimizer(cfg)
         end
     end)
 
-    -- Dragging for minimizer
     local dragging, dragStart, startPos
     btn.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -635,6 +636,7 @@ ElementsTable.Dropdown = (function()
             Get = function()
                 return currentValue
             end,
+            Frame = DropdownFrame.Frame
         }
     end
 
@@ -647,7 +649,7 @@ function Library:CreateWindow(cfg)
     return w
 end
 
--- Floating Minimizer (unchanged)
+-- Floating Minimizer (unchanged from your version)
 function Library:CreateMinimizer(cfg)
     cfg = cfg or {}
 
