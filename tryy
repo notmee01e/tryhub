@@ -30,29 +30,24 @@ local Themes = {
 		Name = "Robotic",
 
 		-- COOL CYBER BLUE (changed from red)
-		Accent = Color3.fromRGB(0, 180, 255),
+		Accent = Color3.fromRGB(96, 205, 255),
 
 		-- Almost pure black with tiny blue undertone
-		AcrylicMain = Color3.fromRGB(8, 10, 16),
+		AcrylicMain = Color3.fromRGB(30, 30, 30),
 
 		-- Glowing cool blue border
-		AcrylicBorder = Color3.fromRGB(0, 140, 255),
+		AcrylicBorder = Color3.fromRGB(60, 60, 60),
 
 		-- Deep blue-black to bright cyan gradient
-		AcrylicGradient = ColorSequence.new(
-			Color3.fromRGB(5, 15, 35),
-			Color3.fromRGB(0, 80, 160)
-		),
-
-		AcrylicNoise = 0.88,
+	    AcrylicGradient = ColorSequence.new(Color3.fromRGB(40, 40, 40), Color3.fromRGB(40, 40, 40)),
+		AcrylicNoise = 0.9,
 		TitleBarLine = Color3.fromRGB(0, 110, 220),
 
-		Tab = Color3.fromRGB(10, 25, 50),
-		Element = Color3.fromRGB(12, 16, 28),
-		ElementBorder = Color3.fromRGB(0, 90, 180),
-		InElementBorder = Color3.fromRGB(0, 170, 255),
-
-		ElementTransparency = 0.80,
+		Tab = Color3.fromRGB(100, 100, 100),
+		Element = Color3.fromRGB(70, 70, 70),
+		ElementBorder = Color3.fromRGB(25, 25, 25),
+		InElementBorder = Color3.fromRGB(55, 55, 55),
+		ElementTransparency = 0.82,
 
 		ToggleSlider = Color3.fromRGB(0, 140, 255),
 		ToggleToggled = Color3.fromRGB(5, 25, 55),
