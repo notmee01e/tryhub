@@ -1,10 +1,11 @@
--- Fluent Lite - Full Working Version with Draggable Window + Floating Minimizer
+-- Fluent Lite - Full Working Version with Draggable + Minimizer + Proper Dropdown
 -- March 2025
 
 local Library = {
     Theme   = "Dark",
     GUI     = Instance.new("ScreenGui", game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")),
     Windows = {},
+    OpenDropdowns = {}, -- to close when clicking elsewhere
 }
 
 Library.GUI.ResetOnSpawn = false
@@ -19,6 +20,7 @@ local Themes = {
         Text          = Color3.fromRGB(235, 235, 245),
         SubText       = Color3.fromRGB(160, 160, 180),
         Hover         = Color3.fromRGB(45, 45, 55),
+        DropdownBg    = Color3.fromRGB(25, 25, 32),
     }
 }
 
@@ -46,7 +48,7 @@ local function ApplyTheme(obj, props)
     end
 end
 
--- Element container with hover/click feedback
+-- Simple element base (used by all controls)
 local function CreateElement(title, desc, parent)
     local frame = New("TextButton", {
         Size = UDim2.new(1,0,0,0),
@@ -56,14 +58,6 @@ local function CreateElement(title, desc, parent)
     }, {
         New("UICorner", {CornerRadius = UDim.new(0,6)}),
         New("UIStroke", {Transparency=0.65, ApplyStrokeMode = Enum.ApplyStrokeMode.Border}),
-        New("UIGradient", {
-            Color = ColorSequence.new{
-                ColorSequenceKeypoint.new(0, Color3.fromRGB(255,255,255)),
-                ColorSequenceKeypoint.new(1, Color3.fromRGB(180,180,200))
-            },
-            Rotation = 90,
-            Transparency = NumberSequence.new(0.92, 0.96)
-        }),
     })
 
     ApplyTheme(frame,      {BackgroundColor3="Element"})
@@ -104,11 +98,15 @@ local function CreateElement(title, desc, parent)
     ApplyTheme(lblTitle, {TextColor3="Text"})
     ApplyTheme(lblDesc,  {TextColor3="SubText"})
 
-    -- Hover / click animation
-    frame.MouseEnter:Connect(function() Tween(frame, nil, {BackgroundTransparency = 0.82}) Tween(frame.UIStroke, nil, {Transparency = 0.4}) end)
-    frame.MouseLeave:Connect(function() Tween(frame, nil, {BackgroundTransparency = 0.92}) Tween(frame.UIStroke, nil, {Transparency = 0.65}) end)
-    frame.MouseButton1Down:Connect(function() Tween(frame, TweenInfo.new(0.12), {BackgroundTransparency = 0.70}) end)
-    frame.MouseButton1Up:Connect(function() Tween(frame, TweenInfo.new(0.18), {BackgroundTransparency = 0.82}) end)
+    -- Hover/click feedback
+    frame.MouseEnter:Connect(function()
+        Tween(frame, nil, {BackgroundTransparency = 0.82})
+        Tween(frame.UIStroke, nil, {Transparency = 0.4})
+    end)
+    frame.MouseLeave:Connect(function()
+        Tween(frame, nil, {BackgroundTransparency = 0.92})
+        Tween(frame.UIStroke, nil, {Transparency = 0.65})
+    end)
 
     frame.Size = UDim2.new(1,0,0, holder.UIListLayout.AbsoluteContentSize.Y + 16)
 
@@ -120,7 +118,7 @@ local function CreateElement(title, desc, parent)
     }
 end
 
--- Window creation
+-- Window
 local function CreateWindow(cfg)
     local win = {
         Title = cfg.Title or "Fluent Lite",
@@ -137,13 +135,6 @@ local function CreateWindow(cfg)
     }, {
         New("UICorner", {CornerRadius = UDim.new(0,10)}),
         New("UIStroke", {Color = Color3.fromRGB(50,50,70), Thickness = 1.5, Transparency = 0.4}),
-        New("UIGradient", {
-            Color = ColorSequence.new{
-                ColorSequenceKeypoint.new(0, Color3.fromRGB(35,35,45)),
-                ColorSequenceKeypoint.new(1, Color3.fromRGB(20,20,28))
-            },
-            Rotation = 90
-        }),
     })
 
     win.Root = root
@@ -211,7 +202,7 @@ local function CreateWindow(cfg)
         end
     end)
 
-    -- Minimize/Restore (title bar button)
+    -- Minimize / Restore (title bar)
     local originalSize = root.Size
     local originalPos  = root.Position
     minimizeBtn.MouseButton1Click:Connect(function()
@@ -234,9 +225,12 @@ local function CreateWindow(cfg)
     end)
 
     -- Tab system
-    local tabBar = New("Frame", {Size = UDim2.new(0,140,1,-44), Position = UDim2.fromOffset(12,40), BackgroundTransparency = 1, Parent = root}, {
-        New("UIListLayout", {Padding = UDim.new(0,6)})
-    })
+    local tabBar = New("Frame", {
+        Size = UDim2.new(0,140,1,-44),
+        Position = UDim2.fromOffset(12,40),
+        BackgroundTransparency = 1,
+        Parent = root
+    }, {New("UIListLayout", {Padding = UDim.new(0,6)})})
 
     local contentArea = New("ScrollingFrame", {
         Size = UDim2.new(1,-164,1,-50),
@@ -279,8 +273,6 @@ local function CreateWindow(cfg)
             end
             btn.BackgroundTransparency = 0.75
             container.Visible = true
-            Tween(btn, TweenInfo.new(0.22), {BackgroundTransparency = 0.68})
-            task.delay(0.25, function() Tween(btn, TweenInfo.new(0.3), {BackgroundTransparency = 0.75}) end)
         end)
 
         tab.btn = btn
@@ -393,26 +385,151 @@ local function CreateWindow(cfg)
             return {Value = function() return value end}
         end
 
+        -- ──────────────────────────────────────────────────────────────
+        --  Proper Dropdown (like original Fluent)
+        -- ──────────────────────────────────────────────────────────────
         function api:Dropdown(cfg)
+            local values = cfg.Values or {}
+            local default = cfg.Default or (values[1] or "Select...")
+
             local el = CreateElement(cfg.Text or "Dropdown", cfg.Desc or "", container)
-            local btn = New("TextButton", {
+
+            local display = New("TextButton", {
                 Size = UDim2.new(1,-24,0,32),
                 Position = UDim2.fromOffset(12,0),
                 BackgroundTransparency = 0.85,
-                Text = cfg.Default or "Select...",
+                Text = tostring(default),
+                TextColor3 = Color3.new(1,1,1),
+                Font = Enum.Font.Gotham,
+                TextSize = 13,
                 Parent = el.Frame,
-            }, {New("UICorner", {CornerRadius=UDim.new(0,6)})})
+            }, {
+                New("UICorner", {CornerRadius = UDim.new(0,6)}),
+                New("TextLabel", {
+                    Size = UDim2.fromOffset(16,16),
+                    Position = UDim2.new(1,-24,0.5,0),
+                    AnchorPoint = Vector2.new(1,0.5),
+                    BackgroundTransparency = 1,
+                    Text = "▼",
+                    TextColor3 = Color3.fromRGB(180,180,200),
+                    Font = Enum.Font.GothamBold,
+                    TextSize = 14,
+                    Parent = nil -- will be added below
+                })
+            })
 
-            -- Simple demo: cycle through values
-            local values = cfg.Values or {"Option 1", "Option 2", "Option 3"}
-            local idx = 1
-            btn.MouseButton1Click:Connect(function()
-                idx = (idx % #values) + 1
-                btn.Text = values[idx]
-                if cfg.Callback then cfg.Callback(values[idx]) end
+            local dropdownFrame = New("Frame", {
+                Size = UDim2.new(1,-24,0,0),
+                Position = UDim2.new(0,12,1,6),
+                BackgroundTransparency = 0.1,
+                Visible = false,
+                ClipsDescendants = true,
+                Parent = el.Frame,
+            }, {
+                New("UICorner", {CornerRadius = UDim.new(0,6)}),
+                New("UIListLayout", {Padding = UDim.new(0,2), SortOrder = Enum.SortOrder.LayoutOrder}),
+                New("UIPadding", {PaddingTop = UDim.new(0,4), PaddingBottom = UDim.new(0,4)})
+            })
+
+            ApplyTheme(dropdownFrame, {BackgroundColor3 = "DropdownBg"})
+
+            local selectedValue = default
+
+            local function closeDropdown()
+                Tween(dropdownFrame, TweenInfo.new(0.22, Enum.EasingStyle.Quint), {Size = UDim2.new(1,-24,0,0)})
+                task.delay(0.23, function() dropdownFrame.Visible = false end)
+            end
+
+            local function openDropdown()
+                dropdownFrame.Visible = true
+                local contentHeight = math.min(#values * 34 + 8, 200) -- max ~6 items visible
+                Tween(dropdownFrame, TweenInfo.new(0.28, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+                    Size = UDim2.new(1,-24,0,contentHeight)
+                })
+            end
+
+            -- Build options
+            for _, val in ipairs(values) do
+                local opt = New("TextButton", {
+                    Size = UDim2.new(1,0,0,30),
+                    BackgroundTransparency = 1,
+                    Text = tostring(val),
+                    TextColor3 = Color3.new(1,1,1),
+                    Font = Enum.Font.Gotham,
+                    TextSize = 13,
+                    TextXAlignment = Enum.TextXAlignment.Left,
+                    Parent = dropdownFrame,
+                }, {
+                    New("UIPadding", {PaddingLeft = UDim.new(0,12)}),
+                })
+
+                opt.MouseEnter:Connect(function()
+                    Tween(opt, nil, {BackgroundTransparency = 0.85})
+                end)
+                opt.MouseLeave:Connect(function()
+                    Tween(opt, nil, {BackgroundTransparency = 1})
+                end)
+
+                opt.MouseButton1Click:Connect(function()
+                    selectedValue = val
+                    display.Text = tostring(val)
+                    closeDropdown()
+                    if cfg.Callback then cfg.Callback(val) end
+                end)
+            end
+
+            -- Toggle dropdown
+            display.MouseButton1Click:Connect(function()
+                if dropdownFrame.Visible then
+                    closeDropdown()
+                else
+                    -- close other open dropdowns first
+                    for _, dd in pairs(Library.OpenDropdowns) do
+                        if dd ~= dropdownFrame then
+                            Tween(dd, TweenInfo.new(0.18), {Size = UDim2.new(1,-24,0,0)})
+                            task.delay(0.19, function() dd.Visible = false end)
+                        end
+                    end
+                    openDropdown()
+                end
             end)
 
-            return {Value = function() return btn.Text end}
+            -- Close when clicking outside
+            local conn
+            conn = uis.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                    local mousePos = uis:GetMouseLocation()
+                    local absPos, absSize = dropdownFrame.AbsolutePosition, dropdownFrame.AbsoluteSize
+                    local displayPos, displaySize = display.AbsolutePosition, display.AbsoluteSize
+
+                    local inDropdown = mousePos.X >= absPos.X and mousePos.X <= absPos.X + absSize.X and
+                                       mousePos.Y >= absPos.Y and mousePos.Y <= absPos.Y + absSize.Y
+
+                    local inDisplay = mousePos.X >= displayPos.X and mousePos.X <= displayPos.X + displaySize.X and
+                                      mousePos.Y >= displayPos.Y and mousePos.Y <= displayPos.Y + displaySize.Y
+
+                    if dropdownFrame.Visible and not inDropdown and not inDisplay then
+                        closeDropdown()
+                    end
+                end
+            end)
+
+            -- Cleanup when destroyed (optional)
+            el.Frame.AncestryChanged:Connect(function()
+                if not el.Frame:IsDescendantOf(Library.GUI) then
+                    conn:Disconnect()
+                end
+            end)
+
+            return {
+                Value = function() return selectedValue end,
+                Set = function(v)
+                    if table.find(values, v) then
+                        selectedValue = v
+                        display.Text = tostring(v)
+                    end
+                end
+            }
         end
 
         return api
@@ -460,21 +577,17 @@ function Library:CreateMinimizer(cfg)
         }, {New("UICorner", {CornerRadius = UDim.new(0, cfg.Corner or 16)})})
     end
 
-    -- Toggle main window visibility
     btn.MouseButton1Click:Connect(function()
         if Library.Windows[1] and Library.Windows[1].Root then
             local wf = Library.Windows[1].Root
             wf.Visible = not wf.Visible
 
-            -- Nice restore animation
             if wf.Visible then
                 wf.Size = UDim2.fromOffset(0,0)
                 Tween(wf, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
                     Size = UDim2.fromOffset(560,380)
                 })
             end
-        else
-            warn("[Fluent] No window found to toggle")
         end
     end)
 
