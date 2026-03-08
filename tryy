@@ -44,13 +44,13 @@ local Themes = {
 		TitleBarLine = Color3.fromRGB(0, 110, 220),
 
 		Tab = Color3.fromRGB(100, 100, 100),
-		Element = Color3.fromRGB(70, 70, 70),
-		ElementBorder = Color3.fromRGB(30, 40, 70),
-		InElementBorder = Color3.fromRGB(50, 60, 100),
-		ElementTransparency = 0.87,,
+		Element = Color3.fromRGB(66, 130, 160),
+		ElementBorder = Color3.fromRGB(40, 100, 122),
+		InElementBorder = Color3.fromRGB(75, 109, 110),
+		ElementTransparency = 0.87,
 
-		ToggleSlider = Color3.fromRGB(0, 140, 255),
-		ToggleToggled = Color3.fromRGB(5, 25, 55),
+		ToggleSlider = Color3.fromRGB(0, 125, 255),
+		ToggleToggled = Color3.fromRGB(0, 255, 255),
 		SliderRail = Color3.fromRGB(20, 30, 60),
 
 		DropdownFrame = Color3.fromRGB(12, 18, 32),
@@ -63,14 +63,19 @@ local Themes = {
 		InputFocused = Color3.fromRGB(5, 20, 45),
 		InputIndicator = Color3.fromRGB(0, 200, 255),
 
-		Dialog = Color3.fromRGB(12, 18, 32),
-		DialogHolder = Color3.fromRGB(8, 12, 24),
-		DialogHolderLine = Color3.fromRGB(0, 90, 180),
-		DialogButton = Color3.fromRGB(12, 18, 32),
-		DialogButtonBorder = Color3.fromRGB(0, 110, 200),
-		DialogBorder = Color3.fromRGB(0, 130, 240),
-		DialogInput = Color3.fromRGB(12, 18, 32),
-		DialogInputLine = Color3.fromRGB(0, 180, 255),
+		Element = Color3.fromRGB(66, 130, 160),
+		ElementBorder = Color3.fromRGB(40, 100, 122),
+		InElementBorder = Color3.fromRGB(75, 109, 110),
+		ElementTransparency = 0.87,
+
+        Dialog = Color3.fromRGB(27, 113, 130),
+		DialogHolder = Color3.fromRGB(33, 99, 109),
+		DialogHolderLine = Color3.fromRGB(34, 81, 86),
+		DialogButton = Color3.fromRGB(27, 128, 130),
+		DialogButtonBorder = Color3.fromRGB(62, 100, 110),
+		DialogBorder = Color3.fromRGB(26, 86, 100),
+		DialogInput = Color3.fromRGB(36, 107, 105),
+		DialogInputLine = Color3.fromRGB(70, 120, 130)
 
 		Text = Color3.fromRGB(230, 240, 255),
 		SubText = Color3.fromRGB(160, 180, 220),
