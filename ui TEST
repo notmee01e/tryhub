@@ -1,10 +1,10 @@
--- Fluent Lite - Draggable + Minimizer + Effects (March 2025 compact version)
+-- Fluent Lite - Full Working Version with Draggable Window + Floating Minimizer
+-- March 2025
 
 local Library = {
     Theme   = "Dark",
     GUI     = Instance.new("ScreenGui", game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")),
     Windows = {},
-    Options = {},
 }
 
 Library.GUI.ResetOnSpawn = false
@@ -46,7 +46,7 @@ local function ApplyTheme(obj, props)
     end
 end
 
--- Simple element container with hover/click feedback
+-- Element container with hover/click feedback
 local function CreateElement(title, desc, parent)
     local frame = New("TextButton", {
         Size = UDim2.new(1,0,0,0),
@@ -69,8 +69,13 @@ local function CreateElement(title, desc, parent)
     ApplyTheme(frame,      {BackgroundColor3="Element"})
     ApplyTheme(frame.UIStroke, {Color="Border"})
 
-    local holder = New("Frame", {BackgroundTransparency=1, Size=UDim2.new(1,-16,1,0), Position=UDim2.fromOffset(8,0), Parent=frame}, {
-        New("UIListLayout", {Padding=UDim.new(0,4), SortOrder=Enum.SortOrder.LayoutOrder}),
+    local holder = New("Frame", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1,-16,1,0),
+        Position = UDim2.fromOffset(8,0),
+        Parent = frame
+    }, {
+        New("UIListLayout", {Padding = UDim.new(0,4), SortOrder = Enum.SortOrder.LayoutOrder})
     })
 
     local lblTitle = New("TextLabel", {
@@ -99,21 +104,11 @@ local function CreateElement(title, desc, parent)
     ApplyTheme(lblTitle, {TextColor3="Text"})
     ApplyTheme(lblDesc,  {TextColor3="SubText"})
 
-    -- hover / click effect
-    frame.MouseEnter:Connect(function()
-        Tween(frame, nil, {BackgroundTransparency = 0.82})
-        Tween(frame.UIStroke, nil, {Transparency = 0.4})
-    end)
-    frame.MouseLeave:Connect(function()
-        Tween(frame, nil, {BackgroundTransparency = 0.92})
-        Tween(frame.UIStroke, nil, {Transparency = 0.65})
-    end)
-    frame.MouseButton1Down:Connect(function()
-        Tween(frame, TweenInfo.new(0.12), {BackgroundTransparency = 0.70})
-    end)
-    frame.MouseButton1Up:Connect(function()
-        Tween(frame, TweenInfo.new(0.18), {BackgroundTransparency = 0.82})
-    end)
+    -- Hover / click animation
+    frame.MouseEnter:Connect(function() Tween(frame, nil, {BackgroundTransparency = 0.82}) Tween(frame.UIStroke, nil, {Transparency = 0.4}) end)
+    frame.MouseLeave:Connect(function() Tween(frame, nil, {BackgroundTransparency = 0.92}) Tween(frame.UIStroke, nil, {Transparency = 0.65}) end)
+    frame.MouseButton1Down:Connect(function() Tween(frame, TweenInfo.new(0.12), {BackgroundTransparency = 0.70}) end)
+    frame.MouseButton1Up:Connect(function() Tween(frame, TweenInfo.new(0.18), {BackgroundTransparency = 0.82}) end)
 
     frame.Size = UDim2.new(1,0,0, holder.UIListLayout.AbsoluteContentSize.Y + 16)
 
@@ -125,11 +120,12 @@ local function CreateElement(title, desc, parent)
     }
 end
 
--- Window
+-- Window creation
 local function CreateWindow(cfg)
     local win = {
         Title = cfg.Title or "Fluent Lite",
         Minimized = false,
+        Root = nil,
     }
 
     local root = New("Frame", {
@@ -150,12 +146,10 @@ local function CreateWindow(cfg)
         }),
     })
 
+    win.Root = root
+
     -- Title bar
-    local titleBar = New("Frame", {
-        Size = UDim2.new(1,0,0,36),
-        BackgroundTransparency = 1,
-        Parent = root,
-    })
+    local titleBar = New("Frame", {Size = UDim2.new(1,0,0,36), BackgroundTransparency = 1, Parent = root})
 
     New("TextLabel", {
         Text = win.Title,
@@ -191,26 +185,6 @@ local function CreateWindow(cfg)
         Parent = titleBar,
     }, {New("UICorner", {CornerRadius=UDim.new(0,6)})})
 
-    -- Content area
-    local tabBar = New("Frame", {
-        Size = UDim2.new(0, 140, 1, -44),
-        Position = UDim2.fromOffset(12, 40),
-        BackgroundTransparency = 1,
-        Parent = root,
-    }, {New("UIListLayout", {Padding = UDim.new(0,6)})})
-
-    local contentArea = New("ScrollingFrame", {
-        Size = UDim2.new(1, -164, 1, -50),
-        Position = UDim2.fromOffset(152, 44),
-        BackgroundTransparency = 1,
-        ScrollBarThickness = 3,
-        CanvasSize = UDim2.new(),
-        Parent = root,
-    }, {
-        New("UIListLayout", {Padding = UDim.new(0,10), SortOrder = Enum.SortOrder.LayoutOrder}),
-        New("UIPadding", {PaddingLeft = UDim.new(0,6), PaddingRight = UDim.new(0,10)}),
-    })
-
     -- Dragging
     local dragging, dragInput, dragStart, startPos
     titleBar.InputBegan:Connect(function(input)
@@ -219,9 +193,7 @@ local function CreateWindow(cfg)
             dragStart = input.Position
             startPos = root.Position
             input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
+                if input.UserInputState == Enum.UserInputState.End then dragging = false end
             end)
         end
     end)
@@ -235,31 +207,24 @@ local function CreateWindow(cfg)
     uis.InputChanged:Connect(function(input)
         if input == dragInput and dragging then
             local delta = input.Position - dragStart
-            root.Position = UDim2.new(
-                startPos.X.Scale,
-                startPos.X.Offset + delta.X,
-                startPos.Y.Scale,
-                startPos.Y.Offset + delta.Y
-            )
+            root.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
         end
     end)
 
-    -- Minimize / Restore logic
-    local originalSize   = root.Size
-    local originalPos    = root.Position
-    local isMinimized    = false
-
+    -- Minimize/Restore (title bar button)
+    local originalSize = root.Size
+    local originalPos  = root.Position
     minimizeBtn.MouseButton1Click:Connect(function()
-        isMinimized = not isMinimized
-        if isMinimized then
+        win.Minimized = not win.Minimized
+        if win.Minimized then
             Tween(root, TweenInfo.new(0.3,Enum.EasingStyle.Back,Enum.EasingDirection.In), {
                 Size = UDim2.fromOffset(0,0),
-                Position = UDim2.new(0.5, -30, 0.9, -30),
+                Position = UDim2.new(0.5,-30,0.9,-30)
             })
         else
             Tween(root, TweenInfo.new(0.4,Enum.EasingStyle.Back,Enum.EasingDirection.Out), {
                 Size = originalSize,
-                Position = originalPos,
+                Position = originalPos
             })
         end
     end)
@@ -269,6 +234,22 @@ local function CreateWindow(cfg)
     end)
 
     -- Tab system
+    local tabBar = New("Frame", {Size = UDim2.new(0,140,1,-44), Position = UDim2.fromOffset(12,40), BackgroundTransparency = 1, Parent = root}, {
+        New("UIListLayout", {Padding = UDim.new(0,6)})
+    })
+
+    local contentArea = New("ScrollingFrame", {
+        Size = UDim2.new(1,-164,1,-50),
+        Position = UDim2.fromOffset(152,44),
+        BackgroundTransparency = 1,
+        ScrollBarThickness = 3,
+        CanvasSize = UDim2.new(),
+        Parent = root
+    }, {
+        New("UIListLayout", {Padding = UDim.new(0,10), SortOrder = Enum.SortOrder.LayoutOrder}),
+        New("UIPadding", {PaddingLeft = UDim.new(0,6), PaddingRight = UDim.new(0,10)})
+    })
+
     local tabs = {}
 
     function win:AddTab(name)
@@ -282,18 +263,14 @@ local function CreateWindow(cfg)
             TextSize = 13,
             TextColor3 = Color3.new(1,1,1),
             Parent = tabBar,
-        }, {
-            New("UICorner", {CornerRadius = UDim.new(0,6)}),
-        })
+        }, {New("UICorner", {CornerRadius = UDim.new(0,6)})})
 
         local container = New("Frame", {
             Size = UDim2.fromScale(1,1),
             BackgroundTransparency = 1,
             Visible = false,
-            Parent = contentArea,
-        }, {
-            New("UIListLayout", {Padding = UDim.new(0,8), SortOrder = Enum.SortOrder.LayoutOrder}),
-        })
+            Parent = contentArea
+        }, {New("UIListLayout", {Padding = UDim.new(0,8), SortOrder = Enum.SortOrder.LayoutOrder})})
 
         btn.MouseButton1Click:Connect(function()
             for _,t in pairs(tabs) do
@@ -302,12 +279,8 @@ local function CreateWindow(cfg)
             end
             btn.BackgroundTransparency = 0.75
             container.Visible = true
-
-            -- tab switch animation
             Tween(btn, TweenInfo.new(0.22), {BackgroundTransparency = 0.68})
-            task.delay(0.25, function()
-                Tween(btn, TweenInfo.new(0.3), {BackgroundTransparency = 0.75})
-            end)
+            task.delay(0.25, function() Tween(btn, TweenInfo.new(0.3), {BackgroundTransparency = 0.75}) end)
         end)
 
         tab.btn = btn
@@ -362,7 +335,7 @@ local function CreateWindow(cfg)
                 if cfg.Callback then cfg.Callback(value) end
             end)
 
-            return {Value = value}
+            return {Value = function() return value end}
         end
 
         function api:Slider(cfg)
@@ -392,8 +365,7 @@ local function CreateWindow(cfg)
             })
 
             local value = cfg.Default or 50
-            local min,max = cfg.Min or 0, cfg.Max or 100
-
+            local min, max = cfg.Min or 0, cfg.Max or 100
             local dragging = false
 
             rail.InputBegan:Connect(function(inp)
@@ -418,7 +390,7 @@ local function CreateWindow(cfg)
                 end
             end)
 
-            return {Value = value}
+            return {Value = function() return value end}
         end
 
         function api:Dropdown(cfg)
@@ -429,19 +401,18 @@ local function CreateWindow(cfg)
                 BackgroundTransparency = 0.85,
                 Text = cfg.Default or "Select...",
                 Parent = el.Frame,
-            }, {
-                New("UICorner", {CornerRadius=UDim.new(0,6)}),
-            })
+            }, {New("UICorner", {CornerRadius=UDim.new(0,6)})})
 
-            -- very simple dropdown (just shows value change on click for demo)
+            -- Simple demo: cycle through values
+            local values = cfg.Values or {"Option 1", "Option 2", "Option 3"}
+            local idx = 1
             btn.MouseButton1Click:Connect(function()
-                local vals = cfg.Values or {"Option 1","Option 2","Option 3"}
-                local next = vals[math.random(1,#vals)]
-                btn.Text = next
-                if cfg.Callback then cfg.Callback(next) end
+                idx = (idx % #values) + 1
+                btn.Text = values[idx]
+                if cfg.Callback then cfg.Callback(values[idx]) end
             end)
 
-            return {Value = btn.Text}
+            return {Value = function() return btn.Text end}
         end
 
         return api
@@ -456,7 +427,7 @@ function Library:CreateWindow(cfg)
     return w
 end
 
--- Floating Minimizer Button (your requested style)
+-- Floating Minimizer
 function Library:CreateMinimizer(cfg)
     cfg = cfg or {}
 
@@ -479,7 +450,6 @@ function Library:CreateMinimizer(cfg)
         New("UIStroke", {Color = Color3.fromRGB(90,140,255), Thickness = 2, Transparency = 0.5}),
     })
 
-    -- simple acrylic look simulation
     if cfg.Acrylic then
         New("Frame", {
             Size = UDim2.fromScale(1,1),
@@ -490,21 +460,31 @@ function Library:CreateMinimizer(cfg)
         }, {New("UICorner", {CornerRadius = UDim.new(0, cfg.Corner or 16)})})
     end
 
+    -- Toggle main window visibility
     btn.MouseButton1Click:Connect(function()
-        if Library.Windows[1] then
-            local w = Library.Windows[1]
-            w.root.Visible = not w.root.Visible
+        if Library.Windows[1] and Library.Windows[1].Root then
+            local wf = Library.Windows[1].Root
+            wf.Visible = not wf.Visible
+
+            -- Nice restore animation
+            if wf.Visible then
+                wf.Size = UDim2.fromOffset(0,0)
+                Tween(wf, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+                    Size = UDim2.fromOffset(560,380)
+                })
+            end
+        else
+            warn("[Fluent] No window found to toggle")
         end
     end)
 
-    -- dragging for minimizer
+    -- Dragging for minimizer
     local dragging, dragStart, startPos
     btn.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
             dragStart = input.Position
             startPos = holder.Position
-
             input.Changed:Connect(function()
                 if input.UserInputState == Enum.UserInputState.End then dragging = false end
             end)
@@ -514,12 +494,7 @@ function Library:CreateMinimizer(cfg)
     uis.InputChanged:Connect(function(input)
         if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
             local delta = input.Position - dragStart
-            holder.Position = UDim2.new(
-                startPos.X.Scale,
-                startPos.X.Offset + delta.X,
-                startPos.Y.Scale,
-                startPos.Y.Offset + delta.Y
-            )
+            holder.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
         end
     end)
 
