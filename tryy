@@ -3149,7 +3149,7 @@ ElementsTable.Toggle = (function()
 			Type = "Toggle",
 		}
 
-	    local ToggleFrame = Components.Element(Config.Title, Config.Description, self.Container, true, Config)
+		local ToggleFrame = Components.Element(Config.Title, Config.Description, self.Container, true, Config)
 		ToggleFrame.DescLabel.Size = UDim2.new(1, -54, 0, 14)
 
 		Toggle.SetTitle = ToggleFrame.SetTitle
@@ -3161,7 +3161,7 @@ ElementsTable.Toggle = (function()
 			AnchorPoint = Vector2.new(0, 0.5),
 			Size = UDim2.fromOffset(14, 14),
 			Position = UDim2.new(0, 2, 0.5, 0),
-			Image = "http://www.roblox.com/asset/?id=12266946128",
+			Image = "http://www.roblox.com/asset/?id=99748756734031",
 			ImageTransparency = 0.5,
 			ThemeTag = {
 				ImageColor3 = "ToggleSlider",
