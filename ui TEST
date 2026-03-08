@@ -1,0 +1,284 @@
+-- Fluent Lite (very stripped-down version)
+-- March 2025
+
+local Library = {
+    Theme       = "Dark",
+    Options     = {},
+    Windows     = {},
+    GUI         = Instance.new("ScreenGui", game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui"))
+}
+
+Library.GUI.ResetOnSpawn = false
+Library.GUI.Name         = "FluentLite"
+
+local Themes = {
+    Dark = {
+        Accent             = Color3.fromRGB(96, 205, 255),
+        Background         = Color3.fromRGB(25, 25, 30),
+        Element            = Color3.fromRGB(35, 35, 40),
+        ElementBorder      = Color3.fromRGB(60, 60, 70),
+        Text               = Color3.fromRGB(240, 240, 240),
+        SubText            = Color3.fromRGB(170, 170, 180),
+    },
+    Robotic = {
+        Accent             = Color3.fromRGB(255, 40, 80),
+        Background         = Color3.fromRGB(8, 8, 12),
+        Element            = Color3.fromRGB(18, 18, 24),
+        ElementBorder      = Color3.fromRGB(120, 10, 40),
+        Text               = Color3.fromRGB(245, 220, 220),
+        SubText            = Color3.fromRGB(180, 140, 140),
+    }
+}
+
+local function New(class, props, children)
+    local obj = Instance.new(class)
+    for k, v in pairs(props or {}) do
+        if k ~= "Parent" and k ~= "ThemeTag" then
+            obj[k] = v
+        end
+    end
+    for _, child in ipairs(children or {}) do
+        child.Parent = obj
+    end
+    if props and props.Parent then
+        obj.Parent = props.Parent
+    end
+    return obj
+end
+
+local function ApplyTheme(obj, tag)
+    if not tag then return end
+    local theme = Themes[Library.Theme] or Themes.Dark
+    for prop, colorName in pairs(tag) do
+        if theme[colorName] then
+            obj[prop] = theme[colorName]
+        end
+    end
+end
+
+local function CreateElement(title, desc, parent)
+    local frame = New("TextButton", {
+        Size           = UDim2.new(1,0,0,0),
+        AutoButtonColor= false,
+        BackgroundTransparency = 0.9,
+        Parent         = parent,
+    }, {
+        New("UICorner", {CornerRadius = UDim.new(0,4)}),
+        New("UIStroke", {Transparency=0.6, ApplyStrokeMode=Enum.ApplyStrokeMode.Border}),
+    })
+
+    local labelHolder = New("Frame", {
+        BackgroundTransparency = 1,
+        Size = UDim2.new(1,-16,1,0),
+        Position = UDim2.fromOffset(8,0),
+        Parent = frame,
+    }, {
+        New("UIListLayout", {Padding=UDim.new(0,4), SortOrder=Enum.SortOrder.LayoutOrder}),
+    })
+
+    local titleLbl = New("TextLabel", {
+        RichText       = true,
+        Text           = title or "",
+        TextColor3     = Color3.new(1,1,1),
+        TextSize       = 14,
+        Font           = Enum.Font.GothamSemibold,
+        BackgroundTransparency = 1,
+        Size           = UDim2.new(1,0,0,18),
+        TextXAlignment = Enum.TextXAlignment.Left,
+        Parent         = labelHolder,
+    })
+
+    local descLbl = New("TextLabel", {
+        Text           = desc or "",
+        TextColor3     = Color3.fromRGB(170,170,180),
+        TextSize       = 12,
+        Font           = Enum.Font.Gotham,
+        BackgroundTransparency = 1,
+        Size           = UDim2.new(1,0,0,0),
+        AutomaticSize  = Enum.AutomaticSize.Y,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        TextWrapped    = true,
+        Parent         = labelHolder,
+    })
+
+    ApplyTheme(frame,      {BackgroundColor3="Element"})
+    ApplyTheme(frame.UIStroke, {Color="ElementBorder"})
+    ApplyTheme(titleLbl,   {TextColor3="Text"})
+    ApplyTheme(descLbl,    {TextColor3="SubText"})
+
+    frame.Size = UDim2.new(1,0,0,labelHolder.UIListLayout.AbsoluteContentSize.Y + 16)
+
+    return {
+        Frame     = frame,
+        Title     = titleLbl,
+        Desc      = descLbl,
+        Visible   = function(b) frame.Visible = b end,
+        SetTitle  = function(t) titleLbl.Text = t end,
+        SetDesc   = function(d) descLbl.Text = d end,
+    }
+end
+
+local Window = {}
+function Library:CreateWindow(cfg)
+    local w = {
+        Title   = cfg.Title or "Fluent Lite",
+        TabList = {},
+        CurrentTab = nil,
+    }
+
+    local root = New("Frame", {
+        Size           = cfg.Size or UDim2.fromOffset(580,420),
+        Position       = UDim2.new(0.5, -290, 0.5, -210),
+        BackgroundColor3 = Color3.fromRGB(20,20,25),
+        Parent         = Library.GUI,
+    }, {
+        New("UICorner", {CornerRadius=UDim.new(0,8)}),
+        New("UIStroke", {Color=Color3.fromRGB(60,60,70), Transparency=0.5}),
+    })
+
+    local titleBar = New("Frame", {
+        Size           = UDim2.new(1,0,0,36),
+        BackgroundTransparency = 1,
+        Parent         = root,
+    }, {
+        New("TextLabel", {
+            Text           = w.Title,
+            Font           = Enum.Font.GothamBold,
+            TextSize       = 16,
+            TextColor3     = Color3.new(1,1,1),
+            BackgroundTransparency = 1,
+            Size           = UDim2.new(1,-80,1,0),
+            Position       = UDim2.fromOffset(12,0),
+            TextXAlignment = Enum.TextXAlignment.Left,
+        }),
+    })
+
+    local closeBtn = New("TextButton", {
+        Size           = UDim2.fromOffset(28,28),
+        Position       = UDim2.new(1,-34,0,4),
+        BackgroundTransparency = 0.9,
+        Text           = "×",
+        Font           = Enum.Font.GothamBold,
+        TextSize       = 18,
+        TextColor3     = Color3.new(1,0.3,0.3),
+        Parent         = titleBar,
+    }, {New("UICorner", {CornerRadius=UDim.new(0,6)})})
+
+    closeBtn.MouseButton1Click:Connect(function()
+        Library.GUI:Destroy()
+    end)
+
+    local tabButtons = New("Frame", {
+        Size           = UDim2.new(0,140,1,-44),
+        Position       = UDim2.fromOffset(12,38),
+        BackgroundTransparency = 1,
+        Parent         = root,
+    }, {New("UIListLayout", {Padding=UDim.new(0,6)})})
+
+    local content = New("Frame", {
+        Size           = UDim2.new(1,-164,1,-50),
+        Position       = UDim2.fromOffset(152,44),
+        BackgroundTransparency = 1,
+        Parent         = root,
+    })
+
+    function w:AddTab(name)
+        local tab = {
+            Name     = name,
+            Elements = {},
+        }
+
+        local btn = New("TextButton", {
+            Size           = UDim2.new(1,0,0,32),
+            BackgroundTransparency = 0.9,
+            Text           = name,
+            Font           = Enum.Font.GothamSemibold,
+            TextSize       = 14,
+            TextColor3     = Color3.new(1,1,1),
+            Parent         = tabButtons,
+        }, {
+            New("UICorner", {CornerRadius=UDim.new(0,6)}),
+        })
+
+        local container = New("ScrollingFrame", {
+            Size           = UDim2.fromScale(1,1),
+            CanvasSize     = UDim2.new(),
+            BackgroundTransparency = 1,
+            ScrollBarThickness = 4,
+            Visible        = false,
+            Parent         = content,
+        }, {
+            New("UIListLayout", {Padding=UDim.new(0,8), SortOrder=Enum.SortOrder.LayoutOrder}),
+            New("UIPadding", {PaddingLeft=UDim.new(0,4), PaddingRight=UDim.new(0,8)}),
+        })
+
+        btn.MouseButton1Click:Connect(function()
+            for _, t in pairs(w.TabList) do
+                t.Button.BackgroundTransparency = 0.9
+                t.Container.Visible = false
+            end
+            btn.BackgroundTransparency = 0.75
+            container.Visible = true
+            w.CurrentTab = tab
+        end)
+
+        tab.Button    = btn
+        tab.Container = container
+        table.insert(w.TabList, tab)
+
+        -- auto-select first tab
+        if #w.TabList == 1 then
+            btn.BackgroundTransparency = 0.75
+            container.Visible = true
+            w.CurrentTab = tab
+        end
+
+        local methods = {}
+        function methods:AddButton(cfg)
+            local el = CreateElement(cfg.Text or "Button", cfg.Desc, container)
+            el.Frame.MouseButton1Click:Connect(cfg.Callback or function() end)
+            return el
+        end
+
+        function methods:AddToggle(cfg)
+            local el = CreateElement(cfg.Text or "Toggle", cfg.Desc, container)
+            local tog = New("Frame", {
+                Size = UDim2.fromOffset(32,16),
+                Position = UDim2.new(1,-42,0.5,0),
+                AnchorPoint = Vector2.new(1,0.5),
+                BackgroundColor3 = Color3.fromRGB(50,50,55),
+                Parent = el.Frame,
+            }, {New("UICorner", {CornerRadius=UDim.new(1,0)})})
+
+            local circle = New("Frame", {
+                Size = UDim2.fromOffset(12,12),
+                Position = UDim2.fromOffset(2,2),
+                BackgroundColor3 = Color3.new(1,1,1),
+                Parent = tog,
+            }, {New("UICorner", {CornerRadius=UDim.new(1,0)})})
+
+            local val = cfg.Default or false
+            local function update()
+                circle.Position = val and UDim2.fromOffset(18,2) or UDim2.fromOffset(2,2)
+                tog.BackgroundColor3 = val and Color3.fromRGB(40,180,100) or Color3.fromRGB(50,50,55)
+            end
+            update()
+
+            el.Frame.MouseButton1Click:Connect(function()
+                val = not val
+                update()
+                if cfg.Callback then cfg.Callback(val) end
+            end)
+
+            return {Value=val, Toggle=function(b) val=b update() end}
+        end
+
+        -- You can add more element types here (Dropdown, Slider, etc.) in the same style
+
+        return methods
+    end
+
+    return w
+end
+
+return Library
