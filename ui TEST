@@ -1,11 +1,11 @@
--- Fluent Lite - Full Working Version with Draggable + Minimizer + Proper Dropdown
--- March 2025
+-- Fluent Lite - Full Working Version (with real Fluent-style Dropdown)
+-- Updated: March 2025
 
 local Library = {
     Theme   = "Dark",
     GUI     = Instance.new("ScreenGui", game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")),
     Windows = {},
-    OpenDropdowns = {}, -- to close when clicking elsewhere
+    OpenDropdowns = {}, -- Tracks open dropdowns to close others
 }
 
 Library.GUI.ResetOnSpawn = false
@@ -48,7 +48,7 @@ local function ApplyTheme(obj, props)
     end
 end
 
--- Simple element base (used by all controls)
+-- Base element (used by all controls)
 local function CreateElement(title, desc, parent)
     local frame = New("TextButton", {
         Size = UDim2.new(1,0,0,0),
@@ -98,7 +98,7 @@ local function CreateElement(title, desc, parent)
     ApplyTheme(lblTitle, {TextColor3="Text"})
     ApplyTheme(lblDesc,  {TextColor3="SubText"})
 
-    -- Hover/click feedback
+    -- Hover / click feedback
     frame.MouseEnter:Connect(function()
         Tween(frame, nil, {BackgroundTransparency = 0.82})
         Tween(frame.UIStroke, nil, {Transparency = 0.4})
@@ -202,7 +202,7 @@ local function CreateWindow(cfg)
         end
     end)
 
-    -- Minimize / Restore (title bar)
+    -- Minimize / Restore
     local originalSize = root.Size
     local originalPos  = root.Position
     minimizeBtn.MouseButton1Click:Connect(function()
@@ -385,149 +385,147 @@ local function CreateWindow(cfg)
             return {Value = function() return value end}
         end
 
-        -- ──────────────────────────────────────────────────────────────
-        --  Proper Dropdown (like original Fluent)
-        -- ──────────────────────────────────────────────────────────────
+        -- Real Fluent-style Dropdown
         function api:Dropdown(cfg)
-            local values = cfg.Values or {}
-            local default = cfg.Default or (values[1] or "Select...")
+            local values   = cfg.Values or {}
+            local default  = cfg.Default or (values[1] or "Select...")
+            local callback = cfg.Callback or function() end
 
             local el = CreateElement(cfg.Text or "Dropdown", cfg.Desc or "", container)
 
-            local display = New("TextButton", {
+            local displayBtn = New("TextButton", {
                 Size = UDim2.new(1,-24,0,32),
                 Position = UDim2.fromOffset(12,0),
-                BackgroundTransparency = 0.85,
+                BackgroundTransparency = 0.88,
                 Text = tostring(default),
                 TextColor3 = Color3.new(1,1,1),
                 Font = Enum.Font.Gotham,
                 TextSize = 13,
+                TextXAlignment = Enum.TextXAlignment.Left,
                 Parent = el.Frame,
             }, {
                 New("UICorner", {CornerRadius = UDim.new(0,6)}),
+                New("UIStroke", {Transparency = 0.6, ApplyStrokeMode = Enum.ApplyStrokeMode.Border}),
                 New("TextLabel", {
-                    Size = UDim2.fromOffset(16,16),
-                    Position = UDim2.new(1,-24,0.5,0),
+                    Size = UDim2.fromOffset(20,20),
+                    Position = UDim2.new(1,-28,0.5,0),
                     AnchorPoint = Vector2.new(1,0.5),
                     BackgroundTransparency = 1,
                     Text = "▼",
                     TextColor3 = Color3.fromRGB(180,180,200),
                     Font = Enum.Font.GothamBold,
                     TextSize = 14,
-                    Parent = nil -- will be added below
                 })
             })
 
-            local dropdownFrame = New("Frame", {
+            ApplyTheme(displayBtn,      {BackgroundColor3 = "Element"})
+            ApplyTheme(displayBtn.UIStroke, {Color = "Border"})
+
+            local dropContainer = New("Frame", {
                 Size = UDim2.new(1,-24,0,0),
-                Position = UDim2.new(0,12,1,6),
+                Position = UDim2.new(0,12,1,8),
                 BackgroundTransparency = 0.1,
                 Visible = false,
                 ClipsDescendants = true,
                 Parent = el.Frame,
             }, {
                 New("UICorner", {CornerRadius = UDim.new(0,6)}),
+                New("UIStroke", {Transparency = 0.55, ApplyStrokeMode = Enum.ApplyStrokeMode.Border}),
                 New("UIListLayout", {Padding = UDim.new(0,2), SortOrder = Enum.SortOrder.LayoutOrder}),
-                New("UIPadding", {PaddingTop = UDim.new(0,4), PaddingBottom = UDim.new(0,4)})
+                New("UIPadding", {PaddingTop = UDim.new(0,4), PaddingBottom = UDim.new(0,4), PaddingLeft = UDim.new(0,2)}),
             })
 
-            ApplyTheme(dropdownFrame, {BackgroundColor3 = "DropdownBg"})
+            ApplyTheme(dropContainer,      {BackgroundColor3 = "DropdownBg"})
+            ApplyTheme(dropContainer.UIStroke, {Color = "Border"})
 
-            local selectedValue = default
+            local currentValue = default
 
-            local function closeDropdown()
-                Tween(dropdownFrame, TweenInfo.new(0.22, Enum.EasingStyle.Quint), {Size = UDim2.new(1,-24,0,0)})
-                task.delay(0.23, function() dropdownFrame.Visible = false end)
-            end
-
-            local function openDropdown()
-                dropdownFrame.Visible = true
-                local contentHeight = math.min(#values * 34 + 8, 200) -- max ~6 items visible
-                Tween(dropdownFrame, TweenInfo.new(0.28, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-                    Size = UDim2.new(1,-24,0,contentHeight)
-                })
-            end
-
-            -- Build options
-            for _, val in ipairs(values) do
-                local opt = New("TextButton", {
+            for _, value in ipairs(values) do
+                local optionBtn = New("TextButton", {
                     Size = UDim2.new(1,0,0,30),
                     BackgroundTransparency = 1,
-                    Text = tostring(val),
+                    Text = tostring(value),
                     TextColor3 = Color3.new(1,1,1),
                     Font = Enum.Font.Gotham,
                     TextSize = 13,
                     TextXAlignment = Enum.TextXAlignment.Left,
-                    Parent = dropdownFrame,
+                    Parent = dropContainer,
                 }, {
                     New("UIPadding", {PaddingLeft = UDim.new(0,12)}),
                 })
 
-                opt.MouseEnter:Connect(function()
-                    Tween(opt, nil, {BackgroundTransparency = 0.85})
+                optionBtn.MouseEnter:Connect(function()
+                    Tween(optionBtn, TweenInfo.new(0.18), {BackgroundTransparency = 0.85})
                 end)
-                opt.MouseLeave:Connect(function()
-                    Tween(opt, nil, {BackgroundTransparency = 1})
+                optionBtn.MouseLeave:Connect(function()
+                    Tween(optionBtn, TweenInfo.new(0.18), {BackgroundTransparency = 1})
                 end)
 
-                opt.MouseButton1Click:Connect(function()
-                    selectedValue = val
-                    display.Text = tostring(val)
-                    closeDropdown()
-                    if cfg.Callback then cfg.Callback(val) end
+                optionBtn.MouseButton1Click:Connect(function()
+                    currentValue = value
+                    displayBtn.Text = tostring(value)
+                    Tween(dropContainer, TweenInfo.new(0.22, Enum.EasingStyle.Quint), {Size = UDim2.new(1,-24,0,0)})
+                    task.delay(0.23, function() dropContainer.Visible = false end)
+                    callback(value)
                 end)
             end
 
-            -- Toggle dropdown
-            display.MouseButton1Click:Connect(function()
-                if dropdownFrame.Visible then
-                    closeDropdown()
+            local function toggleDropdown()
+                if dropContainer.Visible then
+                    Tween(dropContainer, TweenInfo.new(0.22, Enum.EasingStyle.Quint), {Size = UDim2.new(1,-24,0,0)})
+                    task.delay(0.23, function() dropContainer.Visible = false end)
                 else
-                    -- close other open dropdowns first
-                    for _, dd in pairs(Library.OpenDropdowns) do
-                        if dd ~= dropdownFrame then
-                            Tween(dd, TweenInfo.new(0.18), {Size = UDim2.new(1,-24,0,0)})
-                            task.delay(0.19, function() dd.Visible = false end)
+                    for _, other in pairs(Library.OpenDropdowns) do
+                        if other ~= dropContainer then
+                            Tween(other, TweenInfo.new(0.18), {Size = UDim2.new(1,-24,0,0)})
+                            task.delay(0.19, function() other.Visible = false end)
                         end
                     end
-                    openDropdown()
+
+                    dropContainer.Visible = true
+                    local contentH = math.min(#values * 34 + 12, 240)
+                    Tween(dropContainer, TweenInfo.new(0.28, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+                        Size = UDim2.new(1,-24,0,contentH)
+                    })
+                end
+            end
+
+            displayBtn.MouseButton1Click:Connect(toggleDropdown)
+
+            local outsideConn = uis.InputBegan:Connect(function(input)
+                if input.UserInputType ~= Enum.UserInputType.MouseButton1 and input.UserInputType ~= Enum.UserInputType.Touch then return end
+
+                local mouse = uis:GetMouseLocation()
+                local dropAbsPos, dropAbsSize = dropContainer.AbsolutePosition, dropContainer.AbsoluteSize
+                local btnAbsPos, btnAbsSize   = displayBtn.AbsolutePosition, displayBtn.AbsoluteSize
+
+                local inDrop = mouse.X >= dropAbsPos.X and mouse.X <= dropAbsPos.X + dropAbsSize.X and
+                               mouse.Y >= dropAbsPos.Y and mouse.Y <= dropAbsPos.Y + dropAbsSize.Y
+
+                local inBtn  = mouse.X >= btnAbsPos.X  and mouse.X <= btnAbsPos.X  + btnAbsSize.X  and
+                               mouse.Y >= btnAbsPos.Y  and mouse.Y <= btnAbsPos.Y  + btnAbsSize.Y
+
+                if dropContainer.Visible and not inDrop and not inBtn then
+                    toggleDropdown()
                 end
             end)
 
-            -- Close when clicking outside
-            local conn
-            conn = uis.InputBegan:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                    local mousePos = uis:GetMouseLocation()
-                    local absPos, absSize = dropdownFrame.AbsolutePosition, dropdownFrame.AbsoluteSize
-                    local displayPos, displaySize = display.AbsolutePosition, display.AbsoluteSize
-
-                    local inDropdown = mousePos.X >= absPos.X and mousePos.X <= absPos.X + absSize.X and
-                                       mousePos.Y >= absPos.Y and mousePos.Y <= absPos.Y + absSize.Y
-
-                    local inDisplay = mousePos.X >= displayPos.X and mousePos.X <= displayPos.X + displaySize.X and
-                                      mousePos.Y >= displayPos.Y and mousePos.Y <= displayPos.Y + displaySize.Y
-
-                    if dropdownFrame.Visible and not inDropdown and not inDisplay then
-                        closeDropdown()
-                    end
-                end
-            end)
-
-            -- Cleanup when destroyed (optional)
-            el.Frame.AncestryChanged:Connect(function()
-                if not el.Frame:IsDescendantOf(Library.GUI) then
-                    conn:Disconnect()
-                end
+            el.Frame.AncestryChanged:Connect(function(_, p)
+                if p == nil then outsideConn:Disconnect() end
             end)
 
             return {
-                Value = function() return selectedValue end,
-                Set = function(v)
-                    if table.find(values, v) then
-                        selectedValue = v
-                        display.Text = tostring(v)
+                Frame = el.Frame,
+                Value = function() return currentValue end,
+                Set = function(newVal)
+                    if table.find(values, newVal) then
+                        currentValue = newVal
+                        displayBtn.Text = tostring(newVal)
                     end
+                end,
+                Destroy = function()
+                    el.Frame:Destroy()
+                    outsideConn:Disconnect()
                 end
             }
         end
@@ -591,7 +589,6 @@ function Library:CreateMinimizer(cfg)
         end
     end)
 
-    -- Dragging for minimizer
     local dragging, dragStart, startPos
     btn.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
