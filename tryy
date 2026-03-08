@@ -75,7 +75,7 @@ local Themes = {
 		DialogButtonBorder = Color3.fromRGB(62, 100, 110),
 		DialogBorder = Color3.fromRGB(26, 86, 100),
 		DialogInput = Color3.fromRGB(36, 107, 105),
-		DialogInputLine = Color3.fromRGB(70, 120, 130)
+		DialogInputLine = Color3.fromRGB(70, 120, 130),
 
 		Text = Color3.fromRGB(230, 240, 255),
 		SubText = Color3.fromRGB(160, 180, 220),
