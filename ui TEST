@@ -1,10 +1,13 @@
 local Fluent = {}
 
--- Create main window
+-- Window
 function Fluent:CreateWindow(cfg)
-    local win = {}
-    win.Title = cfg.Title or "Fluent UI"
-    win.Size = cfg.Size or UDim2.fromOffset(580, 420)
+    local win = {
+        Title = cfg.Title or "Fluent UI",
+        Size = cfg.Size or UDim2.fromOffset(580, 420),
+        Root = nil,
+        Tabs = {},
+    }
 
     local frame = Instance.new("Frame")
     frame.Size = win.Size
@@ -17,7 +20,8 @@ function Fluent:CreateWindow(cfg)
 
     -- Title bar
     local title = Instance.new("TextLabel", frame)
-    title.Size = UDim2.new(1, 0, 0, 40)
+    title.Size = UDim2.new(1, -80, 0, 40)
+    title.Position = UDim2.new(0, 20, 0, 0)
     title.BackgroundTransparency = 1
     title.Text = win.Title
     title.TextColor3 = Color3.new(1,1,1)
@@ -25,36 +29,40 @@ function Fluent:CreateWindow(cfg)
     title.TextSize = 18
     title.TextXAlignment = Enum.TextXAlignment.Left
 
+    local close = Instance.new("TextButton", frame)
+    close.Size = UDim2.new(0, 34, 0, 34)
+    close.Position = UDim2.new(1, -44, 0, 4)
+    close.BackgroundColor3 = Color3.fromRGB(220, 60, 60)
+    close.Text = "X"
+    close.TextColor3 = Color3.new(1,1,1)
+    close.Font = Enum.Font.GothamBold
+    close.TextSize = 16
+
+    Instance.new("UICorner", close).CornerRadius = UDim.new(0, 8)
+
+    close.MouseButton1Click:Connect(function()
+        frame:Destroy()
+    end)
+
     -- Content area
     local content = Instance.new("ScrollingFrame", frame)
     content.Size = UDim2.new(1, -20, 1, -50)
-    content.Position = UDim2.new(0, 10, 0, 50)
+    content.Position = UDim2.fromOffset(10, 50)
     content.BackgroundTransparency = 1
     content.ScrollBarThickness = 4
 
+    Instance.new("UIListLayout", content).Padding = UDim.new(0, 12)
+
     win.Content = content
+    win.Root = frame
 
     return win
 end
 
--- AddTab (creates a tab button outside and content frame inside)
+-- AddTab (creates content frame for the tab)
 function Fluent:AddTab(name)
     local tab = {}
 
-    -- Tab button (outside - you can place them wherever you want)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, 120, 0, 40)
-    btn.Position = UDim2.new(0, #self.Windows * 130, 0, 0) -- simple horizontal placement
-    btn.BackgroundColor3 = Color3.fromRGB(28, 28, 36)
-    btn.Text = name
-    btn.TextColor3 = Color3.new(1,1,1)
-    btn.Font = Enum.Font.GothamSemibold
-    btn.TextSize = 14
-    btn.Parent = game.Players.LocalPlayer.PlayerGui -- floating tab buttons
-
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
-
-    -- Content page (inside window)
     local page = Instance.new("ScrollingFrame")
     page.Size = UDim2.fromScale(1, 1)
     page.BackgroundTransparency = 1
@@ -64,20 +72,16 @@ function Fluent:AddTab(name)
 
     Instance.new("UIListLayout", page).Padding = UDim.new(0, 12)
 
-    -- Switch tab
-    btn.MouseButton1Click:Connect(function()
-        for _, p in ipairs(self.Content:GetChildren()) do
-            if p:IsA("ScrollingFrame") then p.Visible = false end
-        end
-        page.Visible = true
-    end)
-
     tab.Page = page
+
+    -- Simple tab switching (you can expand this later)
+    page.Visible = true -- auto-show first tab for testing
+    self.ActiveTab = tab
 
     return tab
 end
 
--- Toggle element
+-- Toggle
 function Fluent:Toggle(cfg)
     local frame = Instance.new("Frame")
     frame.Size = UDim2.new(1, 0, 0, 50)
@@ -95,17 +99,17 @@ function Fluent:Toggle(cfg)
     label.TextSize = 14
     label.TextXAlignment = Enum.TextXAlignment.Left
 
-    local toggle = Instance.new("TextButton", frame)
-    toggle.Size = UDim2.new(0, 44, 0, 24)
-    toggle.Position = UDim2.new(1, -60, 0.5, 0)
-    toggle.AnchorPoint = Vector2.new(1, 0.5)
-    toggle.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
-    toggle.Text = ""
-    toggle.Parent = frame
+    local toggleBtn = Instance.new("TextButton", frame)
+    toggleBtn.Size = UDim2.new(0, 44, 0, 24)
+    toggleBtn.Position = UDim2.new(1, -60, 0.5, 0)
+    toggleBtn.AnchorPoint = Vector2.new(1, 0.5)
+    toggleBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+    toggleBtn.Text = ""
+    toggleBtn.Parent = frame
 
-    Instance.new("UICorner", toggle).CornerRadius = UDim.new(1)
+    Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(1)
 
-    local circle = Instance.new("Frame", toggle)
+    local circle = Instance.new("Frame", toggleBtn)
     circle.Size = UDim2.new(0, 18, 0, 18)
     circle.Position = UDim2.new(0, 3, 0.5, 0)
     circle.AnchorPoint = Vector2.new(0, 0.5)
@@ -116,11 +120,11 @@ function Fluent:Toggle(cfg)
 
     local function update()
         Tween(circle, TweenInfo.new(0.25), {Position = UDim2.new(0, value and 23 or 3, 0.5, 0)})
-        Tween(toggle, TweenInfo.new(0.25), {BackgroundColor3 = value and Color3.fromRGB(60,200,120) or Color3.fromRGB(60,60,70)})
+        Tween(toggleBtn, TweenInfo.new(0.25), {BackgroundColor3 = value and Color3.fromRGB(60,200,120) or Color3.fromRGB(60,60,70)})
     end
     update()
 
-    toggle.MouseButton1Click:Connect(function()
+    toggleBtn.MouseButton1Click:Connect(function()
         value = not value
         update()
         if cfg.Callback then cfg.Callback(value) end
@@ -129,7 +133,7 @@ function Fluent:Toggle(cfg)
     return { Value = value }
 end
 
--- Dropdown element
+-- Dropdown
 function Fluent:Dropdown(cfg)
     local frame = Instance.new("Frame")
     frame.Size = UDim2.new(1, 0, 0, 50)
@@ -178,9 +182,6 @@ function Fluent:Dropdown(cfg)
     list.Parent = frame
 
     Instance.new("UICorner", list).CornerRadius = UDim.new(0, 8)
-
-    local listLayout = Instance.new("UIListLayout", list)
-    listLayout.Padding = UDim.new(0, 2)
 
     local current = cfg.Default or "Select..."
 
