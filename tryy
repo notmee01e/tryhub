@@ -936,198 +936,160 @@ end
 
 
 
--- CLEAR BLUE ACRYLIC — Super Transparent + Cool Thunder Light ✨
-
-local TweenService = game:GetService("TweenService")
-
 function AcrylicPaint()
 	local New = Creator.New
 	local AcrylicBlur = AcrylicBlur()
+	local TweenService = game:GetService("TweenService")
 
 	return function(props)
-		props = props or {}
+		local AcrylicPaint = {}
 
-		local Acrylic = {
-			Frame = nil,
-			Model = nil,
-			AddParent = nil,
-			SetVisibility = nil,
-		}
-
-		-- Main clear frame
-		Acrylic.Frame = New("Frame", {
-			Name = "AcrylicPaint",
+		AcrylicPaint.Frame = New("Frame", {
 			Size = UDim2.fromScale(1, 1),
-			BackgroundTransparency = 0.92,
-			BackgroundColor3 = Color3.fromRGB(240, 250, 255),
+			BackgroundTransparency = 0.9,
+			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
 			BorderSizePixel = 0,
-			ClipsDescendants = true,
-			ZIndex = 10,
-		})
-
-		local layers = {
-			-- Very clear blue vignette (using your asset)
+		}, {
+			-- Clear vignette
 			New("ImageLabel", {
-				Name = "Vignette",
-				Image = "rbxassetid://6071579801",
+				Image = "rbxassetid://8992230677",
 				ScaleType = Enum.ScaleType.Slice,
-				SliceCenter = Rect.new(49, 49, 450, 450),
+				SliceCenter = Rect.new(99, 99, 99, 99),
 				AnchorPoint = Vector2.new(0.5, 0.5),
-				Size = UDim2.new(1, 100, 1, 100),
+				Size = UDim2.new(1, 120, 1, 116),
 				Position = UDim2.new(0.5, 0, 0.5, 0),
 				BackgroundTransparency = 1,
-				ImageColor3 = Color3.fromRGB(120, 210, 255),
-				ImageTransparency = 0.82,   -- super clear
-				ZIndex = 1,
+				ImageColor3 = Color3.fromRGB(80, 180, 255),   -- clear blue
+				ImageTransparency = 0.75,
 			}),
 
-			New("UICorner", { CornerRadius = UDim.new(0, 14) }),
+			New("UICorner", { CornerRadius = UDim.new(0, 8) }),
 
-			-- Clean acrylic base (almost invisible)
+			-- Acrylic base
 			New("Frame", {
-				Name = "AcrylicBase",
-				BackgroundTransparency = 0.65,
+				BackgroundTransparency = 0.45,
 				Size = UDim2.fromScale(1, 1),
-				BackgroundColor3 = Color3.fromRGB(20, 35, 70),
-				ZIndex = 2,
-			}, { New("UICorner", { CornerRadius = UDim.new(0, 14) }) }),
-
-			-- Soft blue gradient
-			New("Frame", {
-				Name = "GradientOverlay",
-				BackgroundTransparency = 0.78,
-				Size = UDim2.fromScale(1, 1),
-				ZIndex = 3,
+				Name = "Background",
+				ThemeTag = { BackgroundColor3 = "AcrylicMain" },
 			}, {
-				New("UICorner", { CornerRadius = UDim.new(0, 14) }),
+				New("UICorner", { CornerRadius = UDim.new(0, 8) }),
+			}),
+
+			-- Gradient overlay
+			New("Frame", {
+				BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+				BackgroundTransparency = 0.4,
+				Size = UDim2.fromScale(1, 1),
+				Name = "Gradient",
+			}, {
+				New("UICorner", { CornerRadius = UDim.new(0, 8) }),
 				New("UIGradient", {
 					Rotation = 90,
-					Color = ColorSequence.new{
-						ColorSequenceKeypoint.new(0, Color3.fromRGB(140, 230, 255)),
-						ColorSequenceKeypoint.new(1, Color3.fromRGB(30, 60, 110))
-					},
-					Transparency = NumberSequence.new{0.75, 0.99},
+					ThemeTag = { Color = "AcrylicGradient" },
 				}),
 			}),
 
-			-- Gentle pulsing layer
-			New("Frame", {
-				Name = "PulseLayer",
-				BackgroundTransparency = 0.85,
+			-- Noise layers (kept but very light)
+			New("ImageLabel", {
+				Image = "rbxassetid://9968344105",
+				ImageTransparency = 0.98,
+				ScaleType = Enum.ScaleType.Tile,
+				TileSize = UDim2.new(0, 128, 0, 128),
 				Size = UDim2.fromScale(1, 1),
-				BackgroundColor3 = Color3.fromRGB(100, 210, 255),
-				ZIndex = 4,
-			}, {
-				New("UICorner", { CornerRadius = UDim.new(0, 14) }),
-				New("UIGradient", {
-					Name = "PulseGradient",
-					Rotation = 45,
-					Color = ColorSequence.new{
-						ColorSequenceKeypoint.new(0,   Color3.fromRGB(160, 240, 255)),
-						ColorSequenceKeypoint.new(0.5, Color3.fromRGB(80, 190, 255)),
-						ColorSequenceKeypoint.new(1,   Color3.fromRGB(40, 130, 220))
-					},
-					Transparency = NumberSequence.new{0.60, 0.95},
-					Offset = Vector2.new(0, 0),
-				}),
-			}),
+				BackgroundTransparency = 1,
+			}, { New("UICorner", { CornerRadius = UDim.new(0, 8) }) }),
 
-			-- Soft glowing border
+			New("ImageLabel", {
+				Image = "rbxassetid://9968344227",
+				ImageTransparency = 0.9,
+				ScaleType = Enum.ScaleType.Tile,
+				TileSize = UDim2.new(0, 128, 0, 128),
+				Size = UDim2.fromScale(1, 1),
+				BackgroundTransparency = 1,
+				ThemeTag = { ImageTransparency = "AcrylicNoise" },
+			}, { New("UICorner", { CornerRadius = UDim.new(0, 8) }) }),
+
+			-- Border with animation
 			New("Frame", {
-				Name = "GlowContainer",
 				BackgroundTransparency = 1,
 				Size = UDim2.fromScale(1, 1),
-				ZIndex = 5,
+				ZIndex = 2,
+				Name = "BorderFrame",
 			}, {
-				New("UICorner", { CornerRadius = UDim.new(0, 14) }),
+				New("UICorner", { CornerRadius = UDim.new(0, 8) }),
 				New("UIStroke", {
 					Name = "GlowStroke",
-					Color = Color3.fromRGB(120, 220, 255),
-					Transparency = 0.48,
-					Thickness = 2.2,
-					ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+					Transparency = 0.5,
+					Thickness = 1,
+					ThemeTag = { Color = "AcrylicBorder" },
 				}),
 			}),
-		}
+		})
 
-		for _, layer in ipairs(layers) do
-			layer.Parent = Acrylic.Frame
-		end
+		-- ==================== SIMPLE SMOOTH ANIMATIONS ====================
+		local stroke = AcrylicPaint.Frame:FindFirstChild("GlowStroke", true)
+		local gradient = AcrylicPaint.Frame:FindFirstChild("Gradient", true)
 
-		-- Animations (smooth & no lag)
-		local pulseGradient = Acrylic.Frame.PulseLayer:FindFirstChild("PulseGradient")
-		local glowStroke     = Acrylic.Frame.GlowContainer:FindFirstChild("GlowStroke")
-		local pulseLayer     = Acrylic.Frame.PulseLayer
-
-		if pulseGradient then
-			TweenService:Create(pulseGradient, TweenInfo.new(4.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
-				Offset = Vector2.new(0.4, 0.4)
+		-- 1. Soft breathing border glow
+		if stroke then
+			TweenService:Create(stroke, TweenInfo.new(3.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
+				Transparency = 0.25,
+				Thickness = 1.6,
 			}):Play()
 		end
 
-		if glowStroke then
-			TweenService:Create(glowStroke, TweenInfo.new(3.8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
-				Transparency = 0.28,
-				Thickness = 3.5,
+		-- 2. Gentle gradient pulse
+		if gradient and gradient.UIGradient then
+			TweenService:Create(gradient.UIGradient, TweenInfo.new(4.8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
+				Offset = Vector2.new(0, 0.15)
 			}):Play()
 		end
 
-		-- Cool thunder light flash (very light, no lag)
-		task.spawn(function()
-			while Acrylic.Frame.Parent do
-				task.wait(math.random(3.5, 9))
+		-- 3. Light cool thunder flash (very subtle, no lag)
+		if stroke then
+			task.spawn(function()
+				while AcrylicPaint.Frame.Parent do
+					task.wait(math.random(4, 11))
 
-				if not glowStroke or not pulseLayer then continue end
+					TweenService:Create(stroke, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+						Transparency = 0.15,
+						Thickness = 2.2,
+						Color = Color3.fromRGB(120, 220, 255)
+					}):Play()
 
-				-- Quick cool blue flash
-				TweenService:Create(glowStroke, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-					Transparency = 0.05,
-					Thickness = 5.8,
-					Color = Color3.fromRGB(180, 240, 255)
-				}):Play()
+					task.wait(0.3)
 
-				local orig = pulseLayer.BackgroundTransparency
-				TweenService:Create(pulseLayer, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-					BackgroundTransparency = 0.45
-				}):Play()
+					TweenService:Create(stroke, TweenInfo.new(0.6, Enum.EasingStyle.Sine, Enum.EasingDirection.In), {
+						Transparency = 0.5,
+						Thickness = 1,
+						Color = Color3.fromRGB(0, 0, 0) -- back to theme color
+					}):Play()
+				end
+			end)
+		end
 
-				task.wait(0.22)
-
-				-- Gentle return
-				TweenService:Create(glowStroke, TweenInfo.new(0.55, Enum.EasingStyle.Sine, Enum.EasingDirection.In), {
-					Transparency = 0.48,
-					Thickness = 2.2,
-					Color = Color3.fromRGB(120, 220, 255)
-				}):Play()
-
-				TweenService:Create(pulseLayer, TweenInfo.new(0.55, Enum.EasingStyle.Sine, Enum.EasingDirection.In), {
-					BackgroundTransparency = orig
-				}):Play()
-			end
-		end)
-
-		-- Acrylic blur
-		if props.UseAcrylic ~= false then
-			local Blur = AcrylicBlur()
+		-- Acrylic blur support
+		local Blur
+		if Library.UseAcrylic then
+			Blur = AcrylicBlur()
 			if Blur and Blur.Frame then
-				Blur.Frame.Parent = Acrylic.Frame
-				Acrylic.Model = Blur.Model
-				Acrylic.AddParent = Blur.AddParent
-				Acrylic.SetVisibility = Blur.SetVisibility
-				if Acrylic.SetVisibility then
-					pcall(Acrylic.SetVisibility, true)
+				Blur.Frame.Parent = AcrylicPaint.Frame
+				AcrylicPaint.Model = Blur.Model
+				AcrylicPaint.AddParent = Blur.AddParent
+				AcrylicPaint.SetVisibility = Blur.SetVisibility
+				if Blur.SetVisibility then
+					pcall(Blur.SetVisibility, true)
 				end
 			end
 		end
 
-		return Acrylic
+		return AcrylicPaint
 	end
 end
 
--- Final module
 local Acrylic = {
 	AcrylicBlur = AcrylicBlur(),
-	CreateAcrylic = AcrylicPaint(),
+	CreateAcrylic = createAcrylic,
 	AcrylicPaint = AcrylicPaint(),
 }
 
@@ -1135,9 +1097,6 @@ function Acrylic.init()
 	function Acrylic.Enable() end
 	function Acrylic.Disable() end
 end
-
-
-
 
 
 local Components = {
