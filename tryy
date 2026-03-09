@@ -1159,7 +1159,7 @@ Components.Element = (function()
 			FontFace = Font.new("rbxasset://fonts/families/PermanentMarker.json"),
 			Text = Desc,
 			TextColor3 = Color3.fromRGB(200, 200, 200),
-			TextSize = 12,
+			TextSize = 25,
 			TextWrapped = true,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
@@ -2622,9 +2622,8 @@ Components.Window = (function()
 			Text = "SLH",
 			TextTransparency = 0,
 			FontFace = Font.new("rbxassetid://12187371840", Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),
-			TextSize = 28,
+			TextSize = 25,
 			TextXAlignment = "Center",
-			TextYAlignment = "Center",
 			Size = UDim2.new(1, -16, 0, 28),
 			Position = UDim2.fromOffset(Window.TabWidth + 26, 56),
 			BackgroundTransparency = 1,
@@ -3047,7 +3046,7 @@ Components.Window = (function()
 				FontFace = Font.new("rbxasset://fonts/families/PermanentMarker.json"),
 				Text = Config.Content,
 				TextColor3 = Color3.fromRGB(240, 240, 240),
-				TextSize = 14,
+				TextSize =20,
 				TextXAlignment = Enum.TextXAlignment.Left,
 				TextYAlignment = Enum.TextYAlignment.Top,
 				AutomaticSize = Enum.AutomaticSize.Y,
@@ -6825,4 +6824,5 @@ end)
 task.wait(0.01)
 
 return Library, SaveManager, InterfaceManager, Mobile
+
 
