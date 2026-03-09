@@ -2421,17 +2421,77 @@ Components.Window = (function()
 		end
 		Window.TabWidth = Config.TabWidth
 
+		-- C-bend selector: vertical bar + top curve cap + bottom curve cap
 		local Selector = New("Frame", {
 			Size = UDim2.fromOffset(4, 0),
-			BackgroundColor3 = Color3.fromRGB(76, 194, 255),
+			BackgroundTransparency = 1,  -- container is invisible, children draw the C
 			Position = UDim2.fromOffset(0, (Window.TabHolderTop or 45) + 0),
 			AnchorPoint = Vector2.new(0, 0.5),
-			ThemeTag = {
-				BackgroundColor3 = "Accent",
-			},
+			ClipsDescendants = false,
 		}, {
-			New("UICorner", {
-				CornerRadius = UDim.new(0, 9),
+			-- Main vertical bar (center of the C)
+			New("Frame", {
+				Name = "SelectorBar",
+				Size = UDim2.new(0, 4, 1, -16),  -- slightly shorter than full height to leave room for caps
+				Position = UDim2.new(0, 0, 0, 8),
+				BackgroundColor3 = Color3.fromRGB(76, 194, 255),
+				BorderSizePixel = 0,
+				ThemeTag = { BackgroundColor3 = "Accent" },
+			}, {
+				New("UICorner", { CornerRadius = UDim.new(0, 2) }),
+			}),
+
+			-- Top cap (curves right like top of C)
+			New("Frame", {
+				Name = "SelectorCapTop",
+				Size = UDim2.fromOffset(14, 14),
+				Position = UDim2.new(0, 0, 0, 0),
+				BackgroundTransparency = 1,
+				BorderSizePixel = 0,
+				ClipsDescendants = true,
+			}, {
+				-- Hollow circle trick: big circle clipped = arc/curve
+				New("Frame", {
+					Size = UDim2.fromOffset(24, 24),
+					Position = UDim2.fromOffset(-10, 0),
+					BackgroundTransparency = 1,
+					BorderSizePixel = 0,
+				}, {
+					New("UICorner", { CornerRadius = UDim.new(1, 0) }),
+					New("UIStroke", {
+						Thickness = 4,
+						Color = Color3.fromRGB(76, 194, 255),
+						Transparency = 0,
+						ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+						ThemeTag = { Color = "Accent" },
+					}),
+				}),
+			}),
+
+			-- Bottom cap (curves right like bottom of C)
+			New("Frame", {
+				Name = "SelectorCapBottom",
+				Size = UDim2.fromOffset(14, 14),
+				Position = UDim2.new(0, 0, 1, -14),
+				BackgroundTransparency = 1,
+				BorderSizePixel = 0,
+				ClipsDescendants = true,
+			}, {
+				New("Frame", {
+					Size = UDim2.fromOffset(24, 24),
+					Position = UDim2.new(0, -10, 1, -24),
+					BackgroundTransparency = 1,
+					BorderSizePixel = 0,
+				}, {
+					New("UICorner", { CornerRadius = UDim.new(1, 0) }),
+					New("UIStroke", {
+						Thickness = 4,
+						Color = Color3.fromRGB(76, 194, 255),
+						Transparency = 0,
+						ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+						ThemeTag = { Color = "Accent" },
+					}),
+				}),
 			}),
 		})
 
@@ -2781,7 +2841,11 @@ Components.Window = (function()
 		end)
 
 		Window.SelectorSizeMotor:onStep(function(Value)
-			Selector.Size = UDim2.new(0, 4, 0, Value)
+			Selector.Size = UDim2.new(0, 14, 0, Value)
+			local capBottom = Selector:FindFirstChild("SelectorCapBottom")
+			if capBottom then
+				capBottom.Position = UDim2.new(0, 0, 1, -14)
+			end
 		end)
 
 		Window.ContainerBackMotor:onStep(function(Value)
