@@ -952,7 +952,7 @@ function AcrylicPaint()
 				ImageTransparency = 0.75,
 			}),
 
-			New("UICorner", { CornerRadius = UDim.new(0, 8) }),
+			New("UICorner", { CornerRadius = UDim.new(0, 16) }),
 
 			-- Acrylic base
 			New("Frame", {
@@ -961,7 +961,7 @@ function AcrylicPaint()
 				Name = "Background",
 				ThemeTag = { BackgroundColor3 = "AcrylicMain" },
 			}, {
-				New("UICorner", { CornerRadius = UDim.new(0, 8) }),
+				New("UICorner", { CornerRadius = UDim.new(0, 16) }),
 			}),
 
 			-- Gradient overlay
@@ -971,7 +971,7 @@ function AcrylicPaint()
 				Size = UDim2.fromScale(1, 1),
 				Name = "Gradient",
 			}, {
-				New("UICorner", { CornerRadius = UDim.new(0, 8) }),
+				New("UICorner", { CornerRadius = UDim.new(0, 16) }),
 				New("UIGradient", {
 					Rotation = 90,
 					ThemeTag = { Color = "AcrylicGradient" },
@@ -986,7 +986,7 @@ function AcrylicPaint()
 				TileSize = UDim2.new(0, 128, 0, 128),
 				Size = UDim2.fromScale(1, 1),
 				BackgroundTransparency = 1,
-			}, { New("UICorner", { CornerRadius = UDim.new(0, 8) }) }),
+			}, { New("UICorner", { CornerRadius = UDim.new(0, 16) }) }),
 
 			New("ImageLabel", {
 				Image = "rbxassetid://9968344227",
@@ -996,7 +996,7 @@ function AcrylicPaint()
 				Size = UDim2.fromScale(1, 1),
 				BackgroundTransparency = 1,
 				ThemeTag = { ImageTransparency = "AcrylicNoise" },
-			}, { New("UICorner", { CornerRadius = UDim.new(0, 8) }) }),
+			}, { New("UICorner", { CornerRadius = UDim.new(0, 16) }) }),
 
 			-- Border with animation
 			New("Frame", {
@@ -1005,7 +1005,7 @@ function AcrylicPaint()
 				ZIndex = 2,
 				Name = "BorderFrame",
 			}, {
-				New("UICorner", { CornerRadius = UDim.new(0, 8) }),
+				New("UICorner", { CornerRadius = UDim.new(0, 16) }),
 				New("UIStroke", {
 					Name = "GlowStroke",
 					Transparency = 0.5,
@@ -2674,6 +2674,15 @@ Components.Window = (function()
 			Window.ContainerHolder
 		})
 
+		-- Vertical divider line between tab bar and content area (like Image 2)
+		local TabDivider = New("Frame", {
+			Size = UDim2.new(0, 1, 1, -52),
+			Position = UDim2.new(0, Window.TabWidth + 22, 0, 42),
+			BackgroundTransparency = 0.5,
+			BorderSizePixel = 0,
+			ThemeTag = { BackgroundColor3 = "TitleBarLine" },
+		})
+
 		Window.Root = New("Frame", {
 			BackgroundTransparency = 1,
 			Size = Window.Size,
@@ -2684,6 +2693,7 @@ Components.Window = (function()
 			Window.TabDisplay,
 			Window.ContainerCanvas,
 			TabFrame,
+			TabDivider,
 			ResizeStartFrame,
 		})
 
@@ -3380,7 +3390,7 @@ ElementsTable.Dropdown = (function()
 				ThemeTag = { BackgroundColor3 = "DropdownFrame" },
 				ZIndex = 24,
 			}, {
-				New("UICorner", { CornerRadius = UDim.new(0, 8) }),
+				New("UICorner", { CornerRadius = UDim.new(0, 16) }),
 				New("UIStroke", { Name = "Stroke", Transparency = 0.45, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, ThemeTag = { Color = "DropdownBorder" } }),
 				New("ImageLabel", {
 					Image = "rbxassetid://10734943674",
