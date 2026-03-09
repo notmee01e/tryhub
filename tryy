@@ -2693,6 +2693,95 @@ Components.Window = (function()
 			ThemeTag = { BackgroundColor3 = "TitleBarLine" },
 		})
 
+		-- Helper to build one L-shaped glowing corner
+		local function MakeCorner(anchorX, anchorY, posX, posY, flipX, flipY)
+			local cornerSize = 18  -- length of each arm
+			local thickness = 2    -- arm thickness
+			local color = Color3.fromRGB(96, 205, 255)
+
+			local container = New("Frame", {
+				Size = UDim2.fromOffset(cornerSize, cornerSize),
+				AnchorPoint = Vector2.new(anchorX, anchorY),
+				Position = UDim2.new(posX, 0, posY, 0),
+				BackgroundTransparency = 1,
+				ZIndex = 10,
+			})
+
+			-- Horizontal arm
+			New("Frame", {
+				Size = UDim2.fromOffset(cornerSize, thickness),
+				Position = UDim2.new(0, 0, flipY and 1 or 0, flipY and -thickness or 0),
+				BackgroundColor3 = color,
+				BackgroundTransparency = 0,
+				BorderSizePixel = 0,
+				Name = "GlowH",
+				Parent = container,
+			}, {
+				New("UICorner", { CornerRadius = UDim.new(0, 2) }),
+				New("UIGradient", {
+					Color = ColorSequence.new(
+						flipX and Color3.fromRGB(96, 205, 255) or Color3.fromRGB(0, 0, 0),
+						flipX and Color3.fromRGB(0, 0, 0) or Color3.fromRGB(96, 205, 255)
+					),
+					Transparency = NumberSequence.new({
+						NumberSequenceKeypoint.new(0, flipX and 0 or 0.7),
+						NumberSequenceKeypoint.new(1, flipX and 0.7 or 0),
+					}),
+					Rotation = 0,
+				}),
+			})
+
+			-- Vertical arm
+			New("Frame", {
+				Size = UDim2.fromOffset(thickness, cornerSize),
+				Position = UDim2.new(flipX and 1 or 0, flipX and -thickness or 0, 0, 0),
+				BackgroundColor3 = color,
+				BackgroundTransparency = 0,
+				BorderSizePixel = 0,
+				Name = "GlowV",
+				Parent = container,
+			}, {
+				New("UICorner", { CornerRadius = UDim.new(0, 2) }),
+				New("UIGradient", {
+					Color = ColorSequence.new(
+						flipY and Color3.fromRGB(96, 205, 255) or Color3.fromRGB(0, 0, 0),
+						flipY and Color3.fromRGB(0, 0, 0) or Color3.fromRGB(96, 205, 255)
+					),
+					Transparency = NumberSequence.new({
+						NumberSequenceKeypoint.new(0, flipY and 0 or 0.7),
+						NumberSequenceKeypoint.new(1, flipY and 0.7 or 0),
+					}),
+					Rotation = 90,
+				}),
+			})
+
+			return container
+		end
+
+		local CornerTL = MakeCorner(0, 0, 0, 0, false, false)  -- Top Left
+		local CornerTR = MakeCorner(1, 0, 1, 0, true,  false)  -- Top Right
+		local CornerBL = MakeCorner(0, 1, 0, 1, false, true)   -- Bottom Left
+		local CornerBR = MakeCorner(1, 1, 1, 1, true,  true)   -- Bottom Right
+
+		-- Animate all corners with a breathing glow pulse
+		local corners = {CornerTL, CornerTR, CornerBL, CornerBR}
+		task.spawn(function()
+			local t = 0
+			while true do
+				t = t + 0.05
+				local alpha = math.abs(math.sin(t))  -- 0 to 1 pulse
+				local transparency = 0.1 + (1 - alpha) * 0.6  -- pulses between bright and dim
+				for _, corner in ipairs(corners) do
+					for _, child in ipairs(corner:GetChildren()) do
+						if child:IsA("Frame") then
+							child.BackgroundTransparency = transparency
+						end
+					end
+				end
+				task.wait(0.05)
+			end
+		end)
+
 		Window.Root = New("Frame", {
 			BackgroundTransparency = 1,
 			Size = Window.Size,
@@ -2704,6 +2793,10 @@ Components.Window = (function()
 			Window.ContainerCanvas,
 			TabFrame,
 			TabDivider,
+			CornerTL,
+			CornerTR,
+			CornerBL,
+			CornerBR,
 			ResizeStartFrame,
 		})
 
